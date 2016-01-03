@@ -9,6 +9,15 @@ GIT
       thinking-sphinx (>= 1.5.0)
 
 GIT
+  remote: git://github.com/paypal/adaptivepayments-sdk-ruby.git
+  revision: 47c6bcee5ba9593c3436100913f146d743fa9488
+  ref: 47c6bcee5ba9593c3436100913f146d743fa9488
+  branch: master
+  specs:
+    paypal-sdk-adaptivepayments (1.117.1)
+      paypal-sdk-core (~> 0.3.0)
+
+GIT
   remote: git://github.com/paypal/permissions-sdk-ruby.git
   revision: c0240bee9f94fe6338d67b4f754e1a11ce81619a
   ref: c0240bee9f94fe6338d67b4f754e1a11ce81619a
@@ -569,6 +578,7 @@ DEPENDENCIES
   paperclip
   parallel_tests
   passenger (~> 5.0.18)
+  paypal-sdk-adaptivepayments!
   paypal-sdk-merchant (~> 1.116.0)
   paypal-sdk-permissions!
   pickle

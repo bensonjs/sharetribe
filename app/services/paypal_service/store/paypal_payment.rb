@@ -86,6 +86,7 @@ module PaypalService::Store::PaypalPayment
 
   def create(community_id, transaction_id, order)
     begin
+      binding.pry
       model = PaypalPaymentModel.create!(
         initial(
           order

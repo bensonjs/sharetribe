@@ -87,6 +87,10 @@ gem 'paypal-sdk-permissions',
   :branch => 'master',
   :ref    => 'c0240bee9f94fe6338d67b4f754e1a11ce81619a'
 gem 'paypal-sdk-merchant', '~> 1.116.0'
+gem 'paypal-sdk-adaptivepayments',
+  :git    => 'git://github.com/paypal/adaptivepayments-sdk-ruby.git',
+  :branch => 'master',
+  :ref    => '47c6bcee5ba9593c3436100913f146d743fa9488'
 gem 'airbrake', '~>4.1.0'
 gem 'cache_digests'
 gem 'librato-rails'

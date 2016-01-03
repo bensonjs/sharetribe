@@ -10,13 +10,14 @@ class PaypalService::CheckoutOrdersController < ApplicationController
 
 
   def success
+    binding.pry
     return redirect_to error_not_found_path if params[:token].blank?
 
     token = paypal_payments_service.get_request_token(@current_community.id, params[:token])
     return redirect_to error_not_found_path if !token[:success]
 
     transaction = transaction_service.query(token[:data][:transaction_id])
-
+binding.pry
     proc_status = paypal_payments_service.create(
       @current_community.id,
       token[:data][:token],
@@ -27,7 +28,7 @@ class PaypalService::CheckoutOrdersController < ApplicationController
       flash[:error] = t("error_messages.paypal.generic_error")
       return redirect_to root
     end
-
+binding.pry
     render "paypal_service/success", layout: false, locals: {
       op_status_url: transaction_op_status_path(proc_status[:data][:process_token]),
       redirect_url: success_processed_paypal_service_checkout_orders_path(
