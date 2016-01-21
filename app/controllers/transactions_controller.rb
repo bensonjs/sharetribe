@@ -281,6 +281,7 @@ class TransactionsController < ApplicationController
   end
 
   def price_break_down_locals(tx)
+  binding.pry
     if tx[:payment_process] == :none && tx[:listing_price].cents == 0
       nil
     else
@@ -319,7 +320,7 @@ class TransactionsController < ApplicationController
       display_name: PersonViewUtils.person_display_name(author_model, community),
       username: author_model.username
     }
-
+binding.pry
     unit_type = listing_model.unit_type.present? ? ListingViewUtils.translate_unit(listing_model.unit_type, listing_model.unit_tr_key) : nil
     localized_selector_label = listing_model.unit_type.present? ? ListingViewUtils.translate_quantity(listing_model.unit_type, listing_model.unit_selector_tr_key) : nil
     booking_start = Maybe(params)[:start_on].map { |d| TransactionViewUtils.parse_booking_date(d) }.or_else(nil)

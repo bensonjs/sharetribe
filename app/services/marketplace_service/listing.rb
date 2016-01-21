@@ -8,6 +8,7 @@ module MarketplaceService
         [:title, :mandatory, :string],
         [:author_id, :mandatory, :string],
         [:price, :optional, :money],
+        [:deposit, :optional, :money],
         [:require_shipping_address, :optional, :to_bool],
         [:pickup_enabled, :optional, :to_bool],
         [:shipping_price, :optional, :money],
@@ -24,7 +25,7 @@ module MarketplaceService
       module_function
 
       def listing(listing_model)
-        Listing.call(EntityUtils.model_to_hash(listing_model).merge({price: listing_model.price, shipping_price: listing_model.shipping_price, shipping_price_additional: listing_model.shipping_price_additional}))
+        Listing.call(EntityUtils.model_to_hash(listing_model).merge({price: listing_model.price, deposit:listing_model.deposit, shipping_price: listing_model.shipping_price, shipping_price_additional: listing_model.shipping_price_additional}))
       end
 
       def send_payment_settings_reminder?(listing_id, community_id)

@@ -59,6 +59,7 @@ class PreauthorizeTransactionsController < ApplicationController
       localized_unit_type: translate_unit_from_listing(vprms[:listing]),
       localized_selector_label: translate_selector_label_from_listing(vprms[:listing]),
       subtotal: (quantity > 1 || vprms[:listing][:shipping_price].present?) ? vprms[:subtotal] : nil,
+      deposit: vprms[:listing][:deposit],
       shipping_price: delivery_method == :shipping ? vprms[:shipping_price] : nil,
       total: vprms[:total_price]
     })
@@ -176,6 +177,7 @@ class PreauthorizeTransactionsController < ApplicationController
       localized_unit_type: translate_unit_from_listing(vprms[:listing]),
       localized_selector_label: translate_selector_label_from_listing(vprms[:listing]),
       subtotal: vprms[:subtotal],
+      deposit: vprms[:deposit],
       shipping_price: delivery_method == :shipping ? vprms[:shipping_price] : nil,
       total: vprms[:total_price]
     })
@@ -189,6 +191,7 @@ class PreauthorizeTransactionsController < ApplicationController
       listing: vprms[:listing],
       delivery_method: delivery_method,
       subtotal: vprms[:subtotal],
+      deposit: vprms[:deposit],
       author: query_person_entity(vprms[:listing][:author_id]),
       action_button_label: vprms[:action_button_label],
       expiration_period: MarketplaceService::Transaction::Entity.authorization_expiration_period(vprms[:payment_type]),
@@ -285,6 +288,7 @@ class PreauthorizeTransactionsController < ApplicationController
       localized_unit_type: translate_unit_from_listing(vprms[:listing]),
       localized_selector_label: translate_selector_label_from_listing(vprms[:listing]),
       subtotal: (quantity > 1) ? vprms[:subtotal] : nil,
+      deposit: (quantity > 1) ? vprms[:deposit] : nil,
       total: vprms[:total_price]
     })
 
@@ -375,13 +379,18 @@ class PreauthorizeTransactionsController < ApplicationController
     action_button_label = translate(listing[:action_button_tr_key])
 
     subtotal = listing[:price] * quantity
+    deposit = listing[:deposit]
     shipping_price = shipping_price_total(listing[:shipping_price], listing[:shipping_price_additional], quantity)
     total_price = shipping_enabled ? subtotal + shipping_price : subtotal
+    if (deposit != nil)
+        total_price += deposit;
+    end
 
     { listing: listing,
       payment_type: payment_type,
       action_button_label: action_button_label,
       subtotal: subtotal,
+      deposit: deposit,
       shipping_price: shipping_price,
       total_price: total_price }
   end

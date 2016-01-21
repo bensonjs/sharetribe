@@ -20,6 +20,7 @@ module TransactionViewUtils
     [:duration, :fixnum],
     [:quantity, :fixnum],
     [:subtotal, :money],
+    [:deposit, :money],
     [:total, :money],
     [:shipping_price, :money],
     [:total_label, :string])

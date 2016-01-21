@@ -125,6 +125,8 @@
             - with_quantity_and_vat_text(@current_community, @listing) do |text|
               %span.listing-price-quantity
                 = text
+                %br/
+                = "(Deposit: #{humanized_money_with_symbol(@listing.deposit).upcase})"
 
     .row-with-divider
       .col-12

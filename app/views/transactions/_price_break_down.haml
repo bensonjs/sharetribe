@@ -35,6 +35,13 @@
       %span.initiate-transaction-sum-value
         = humanized_money_with_symbol(subtotal)
 
+  - if deposit.present?
+    .initiate-transaction-sum-wrapper
+      %span.initiate-transaction-sum-label
+        = "Deposit:"
+      %span.initiate-transaction-sum-value
+        = humanized_money_with_symbol(deposit)
+
   - if shipping_price.present?
     .initiate-transaction-shipping-price-wrapper
       %span.initiate-transaction-shipping-price-label
