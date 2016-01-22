@@ -59,10 +59,10 @@ module PaypalService::API
         if (create_payment[:payment_action] == :order)
           MerchantData.create_set_express_checkout_order(create_payment_data)
         else
-          # MerchantData.create_set_preapproval(create_payment_data)
+          MerchantData.create_set_preapproval(create_payment_data)
           # MerchantData.create_set_pay(create_payment_data)
           # AdaptivePaymentsData.create_set_pay(create_payment_data)
-          MerchantData.create_set_express_checkout_authorization(create_payment_data)
+          # MerchantData.create_set_express_checkout_authorization(create_payment_data)
         end
 
       with_success(community_id, create_payment[:transaction_id],
@@ -183,8 +183,44 @@ binding.pry
         end
       end
     end
-
+    
     def do_full_capture(community_id, transaction_id, info, payment, m_acc)
+      with_success(community_id, transaction_id,
+        MerchantData.create_set_pay({
+            receiver_username: m_acc[:payer_id],
+            preapprovalKey: payment[:authorization_id],
+            order_total: info[:payment_total],
+            success: "https://paypal-sdk-samples.herokuapp.com/adaptive_payments/pay",
+            cancel: "https://paypal-sdk-samples.herokuapp.com/adaptive_payments/pay",
+            invnum: Invnum.create(community_id, transaction_id, :payment)
+          }),
+        error_policy: {
+          codes_to_retry: ["10001", "x-timeout", "x-servererror"],
+          try_max: 5,
+          finally: (method :void_failed_payment).call(payment, m_acc)
+        }
+        ) do |payment_res|
+
+binding.pry
+        # Save payment data to payment
+        payment = PaymentStore.update(
+          data: payment_res,
+          community_id: community_id,
+          transaction_id: transaction_id
+         )
+
+        payment_entity = DataTypes.create_payment(payment)
+
+        # Trigger payment_updated event
+        @events.send(:payment_updated, :success, payment_entity)
+
+        # Return as payment entity
+        Result::Success.new(payment_entity)
+      end
+    end
+
+    def do_full_capture_bak(community_id, transaction_id, info, payment, m_acc)
+      binding.pry
       with_success(community_id, transaction_id,
         MerchantData.create_do_full_capture({
             receiver_username: m_acc[:payer_id],
@@ -218,7 +254,6 @@ binding.pry
 
     ## GET /payments/:community_id/:transaction_id
     def get_payment(community_id, transaction_id)
-      binding.pry
       Maybe(PaymentStore.get(community_id, transaction_id))
         .map { |payment| Result::Success.new(DataTypes.create_payment(payment)) }
         .or_else { Result::Error.new("No matching payment for community_id: #{community_id} and transaction_id: #{transaction_id}.")}
@@ -289,8 +324,8 @@ binding.pry
             token[:community_id],
             token[:transaction_id],
             {receiver_id: m_acc[:payer_id], merchant_id: m_acc[:person_id], payer_id: m_acc[:payer_id], 
-              authorization_total: Money.new(1500, "GBP"),
-              currency: "GBP", payment_status: "pending"}
+              authorization_total: Money.new(1500, "GBP"), currency: "GBP", payment_status: "pending", pending_reason: "authorization",
+              authorization_id: token[:token], authorization_date: Time.new}
           )
 
           payment_entity = DataTypes.create_payment(payment)

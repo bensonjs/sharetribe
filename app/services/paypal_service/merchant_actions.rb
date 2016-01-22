@@ -492,7 +492,7 @@ module PaypalService
             returnUrl: req[:success],
             cancelUrl: req[:cancel],
             currencyCode: req[:order_total].currency.iso_code,
-            preapprovalKey: "PA-40B88518U98165748",
+            preapprovalKey: req[:preapprovalKey],
             receiverList: {
               receiver: [{
                 amount: MoneyUtil.to_dot_separated_str(req[:order_total]),

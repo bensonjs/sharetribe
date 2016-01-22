@@ -36,11 +36,11 @@ module PaypalService
     def build_api(request)
       req = request.to_h
       if (req[:receiver_username])
-        # PayPal::SDK::AdaptivePayments.new(nil, { subject: req[:receiver_username] })
-        PayPal::SDK::Merchant.new(nil, { subject: req[:receiver_username] })
+        PayPal::SDK::AdaptivePayments.new(nil, { subject: req[:receiver_username] })
+        # PayPal::SDK::Merchant.new(nil, { subject: req[:receiver_username] })
       else
-        PayPal::SDK::Merchant.new
-        # PayPal::SDK::AdaptivePayments.new
+        # PayPal::SDK::Merchant.new
+        PayPal::SDK::AdaptivePayments.new
       end
     end
 

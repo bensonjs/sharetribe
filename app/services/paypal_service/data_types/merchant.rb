@@ -240,16 +240,8 @@ module PaypalService
         
       SetPay = EntityUtils.define_builder(
         [:method, const_value: :create_set_pay],
-        [:item_name, :mandatory, :string],
-        [:item_quantity, :fixnum, default: 1],
+        [:preapprovalKey, :mandatory, :string],
 
-        [:require_shipping_address, :to_bool],
-        [:item_price, :mandatory, :money],
-
-        # If specified, require_shipping_address must be true
-        [:shipping_total, :optional],
-
-        # Must match item_price * item_quantity + shipping_total
         [:order_total, :mandatory, :money],
 
         [:receiver_username, :mandatory, :string],
@@ -316,10 +308,7 @@ module PaypalService
       def create_do_authorization(opts); DoAuthorization.call(opts) end
       def create_do_authorization_response(opts); DoAuthorizationResponse.call(opts) end
 
-      def create_do_full_capture(opts)
-        binding.pry
-        DoFullCapture.call(opts) 
-        end
+      def create_do_full_capture(opts); DoFullCapture.call(opts) end
       def create_do_full_capture_response(opts); DoFullCaptureResponse.call(opts) end
 
       def create_do_void(opts); DoVoid.call(opts) end
