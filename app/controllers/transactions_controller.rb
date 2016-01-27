@@ -70,7 +70,7 @@ class TransactionsController < ApplicationController
         booking_fields = Maybe(form).slice(:start_on, :end_on).select { |booking| booking.values.all? }.or_else({})
 
         quantity = Maybe(booking_fields).map { |b| DateUtils.duration_days(b[:start_on], b[:end_on]) }.or_else(form[:quantity])
-
+binding.pry
         TransactionService::Transaction.create(
           {
             transaction: {
@@ -83,6 +83,7 @@ class TransactionsController < ApplicationController
               unit_price: listing_model.price,
               unit_tr_key: listing_model.unit_tr_key,
               listing_quantity: quantity,
+              deposit: listing_model.deposit,
               content: form[:message],
               booking_fields: booking_fields,
               payment_gateway: process[:process] == :none ? :none : gateway, # TODO This is a bit awkward

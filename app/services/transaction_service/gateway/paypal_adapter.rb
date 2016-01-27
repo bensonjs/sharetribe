@@ -12,7 +12,7 @@ module TransactionService::Gateway
       # we don't use separated unit price and quantity, only the total
       # price for now.
       shipping_total = Maybe(tx[:shipping_price]).or_else(0)
-      order_total = tx[:unit_price] * tx[:listing_quantity] + shipping_total
+      order_total = tx[:unit_price] * tx[:listing_quantity] + shipping_total + tx[:deposit]
 
       create_payment_info = DataTypes.create_create_payment_request(
         {
