@@ -149,7 +149,7 @@ module TransactionService::Store::Transaction
     Maybe(model)
       .map { |m|
         hash = EntityUtils.model_to_hash(m)
-               .merge({unit_price: m.unit_price, minimum_commission: m.minimum_commission, shipping_price: m.shipping_price })
+               .merge({unit_price: m.unit_price, minimum_commission: m.minimum_commission, shipping_price: m.shipping_price, deposit:m.deposit })
 
         hash = add_opt_shipping_address(hash, m)
         hash = add_opt_booking(hash, m)

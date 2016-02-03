@@ -50,6 +50,7 @@ class PaypalPayment < ActiveRecord::Base
     :order_date,
     :currency,
     :order_total_cents,
+    :deposit_cents,
     :authorization_id,
     :authorization_date,
     :authorization_expires_date,
@@ -76,6 +77,7 @@ class PaypalPayment < ActiveRecord::Base
     :payment_status,
     :commission_status)
 
+  monetize :deposit_cents,          with_model_currency: :currency, allow_nil: true
   monetize :order_total_cents,          with_model_currency: :currency, allow_nil: true
   monetize :authorization_total_cents,  with_model_currency: :currency, allow_nil: true
   monetize :payment_total_cents,        with_model_currency: :currency, allow_nil: true

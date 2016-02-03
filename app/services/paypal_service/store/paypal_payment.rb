@@ -17,6 +17,7 @@ module PaypalService::Store::PaypalPayment
     [:order_date, :time],
     [:currency, :mandatory, :string],
     [:order_total_cents, :fixnum],
+    [:deposit_cents, :fixnum],
     [:authorization_total_cents, :fixnum],
     [:commission_status, const_value: :not_charged])
 
@@ -50,6 +51,7 @@ module PaypalService::Store::PaypalPayment
     :order_id,
     :order_date,
     :order_total_cents,
+    :deposit_cents,
     :authorization_id,
     :authorization_date,
     :authorization_expires_date,
@@ -139,6 +141,7 @@ module PaypalService::Store::PaypalPayment
   end
 
   def initial(order)
+    binding.pry
     order_total = order[:order_total]
     authorization_total = order[:authorization_total]
     total =

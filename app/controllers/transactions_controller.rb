@@ -101,6 +101,7 @@ binding.pry
   end
 
   def show
+    binding.pry
     m_participant =
       Maybe(
         MarketplaceService::Transaction::Query.transaction_with_conversation(
@@ -302,6 +303,7 @@ binding.pry
         end_on: booking ? tx[:booking][:end_on] : nil,
         duration: booking ? tx[:booking][:duration] : nil,
         quantity: quantity,
+        deposit: tx[:deposit],
         subtotal: show_subtotal ? tx[:listing_price] * quantity : nil,
         total: Maybe(tx[:payment_total]).or_else(tx[:checkout_total]),
         shipping_price: tx[:shipping_price],

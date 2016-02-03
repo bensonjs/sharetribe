@@ -522,7 +522,8 @@ module PaypalService
             currencyCode: req[:order_total].currency.iso_code,
             maxAmountPerPayment: MoneyUtil.to_dot_separated_str(req[:order_total]),
             maxNumberOfPayments: 1,
-            startingDate: Time.new  
+            startingDate: Time.new,
+            endingDate: DateTime.now.to_date + 7
           }
         },
         wrapper_method_name: :build_preapproval,
