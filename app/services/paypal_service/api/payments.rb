@@ -82,6 +82,7 @@ module PaypalService::API
           item_name: create_payment[:item_name],
           item_quantity: create_payment[:item_quantity],
           item_price: create_payment[:item_price] || create_payment[:order_total],
+          order_total: create_payment[:order_total],
           shipping_total: create_payment[:shipping_total],
           express_checkout_url: response[:redirect_url]
         })
@@ -324,7 +325,7 @@ binding.pry
             token[:community_id],
             token[:transaction_id],
             {receiver_id: m_acc[:payer_id], merchant_id: m_acc[:person_id], payer_id: m_acc[:payer_id], 
-              authorization_total: Money.new(1500, "GBP"), currency: "GBP", payment_status: "pending", pending_reason: "authorization",
+              authorization_total: token[:order_total], currency: token[:order_total].currency.iso_code, payment_status: "pending", pending_reason: token[:payment_action],
               authorization_id: token[:token], authorization_date: Time.new}
           )
 

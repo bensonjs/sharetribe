@@ -35,6 +35,7 @@ class PaypalToken < ActiveRecord::Base
     :item_name,
     :item_quantity,
     :item_price,
+    :order_total,
     :currency,
     :express_checkout_url,
     :receiver_id,
@@ -42,5 +43,6 @@ class PaypalToken < ActiveRecord::Base
   )
 
   monetize :item_price_cents, with_model_currency: :currency, allow_nil: true
+  monetize :order_total_cents, with_model_currency: :currency, allow_nil: true
   monetize :shipping_total_cents, with_model_currency: :currency, allow_nil: true
 end
