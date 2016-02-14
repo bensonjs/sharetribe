@@ -321,11 +321,12 @@ binding.pry
     def create_payment(token)
       @lookup.with_merchant_account(token[:community_id], token) do |m_acc|
         # Save payment
+        binding.pry
           payment = PaymentStore.create(
             token[:community_id],
             token[:transaction_id],
             {receiver_id: m_acc[:payer_id], merchant_id: m_acc[:person_id], payer_id: m_acc[:payer_id], 
-              authorization_total: token[:order_total], currency: token[:order_total].currency.iso_code, payment_status: "pending", pending_reason: token[:payment_action],
+              authorization_total: token[:order_total], currency: token[:order_total].currency.iso_code, payment_status: "pending", pending_reason: token[:payment_action].to_s,
               authorization_id: token[:token], authorization_date: Time.new}
           )
 
