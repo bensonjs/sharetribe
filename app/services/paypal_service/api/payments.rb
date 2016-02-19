@@ -11,6 +11,8 @@ module PaypalService::API
     AdaptivePaymentsData = PaypalService::DataTypes::AdaptivePayments
     TokenStore = PaypalService::Store::Token
     PaymentStore = PaypalService::Store::PaypalPayment
+    AccountStore = PaypalService::Store::PaypalAccount
+    TxStore = TransactionService::Store::Transaction
     Lookup = PaypalService::API::Lookup
     Worker = PaypalService::API::Worker
     Invnum = PaypalService::API::Invnum
@@ -186,6 +188,10 @@ binding.pry
     end
     
     def do_full_capture(community_id, transaction_id, info, payment, m_acc)
+    binding.pry
+        admin_acc = AccountStore.get_active(community_id: community_id)
+        tx = TxStore.get(transaction_id)
+
       with_success(community_id, transaction_id,
         MerchantData.create_set_pay({
             receiver_username: m_acc[:payer_id],

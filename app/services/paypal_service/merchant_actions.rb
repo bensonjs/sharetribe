@@ -57,6 +57,21 @@ module PaypalService
       end
     end
 
+    # URLs for the paypal adaptive payment
+    SANDBOX_AP_URL = "https://www.sandbox.paypal.com/webscr"
+    LIVE_AP_URL = "https://www.paypal.com/webscr"
+
+    def adaptive_payment_url(api, cmd, tokenParam, token)
+        endpoint = api.config.mode.to_sym
+        if (endpoint == :sandbox)
+          url = URLUtils.append_query_param(SANDBOX_AP_URL, "cmd", cmd)
+          URLUtils.append_query_param(url, tokenParam, token)
+        else
+          url = URLUtils.append_query_param(LIVE_AP_URL, "cmd", cmd)
+          URLUtils.append_query_param(url, tokenParam, token)
+        end
+    end
+
 
     MERCHANT_ACTIONS = {
       setup_billing_agreement_bak: PaypalAction.def_action(
@@ -507,7 +522,8 @@ module PaypalService
           binding.pry
           DataTypes::Merchant.create_set_pay_response({
             token: res.payKey,
-            redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_ap-payment&paykey=#{res.payKey}"),
+            # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_ap-payment&paykey=#{res.payKey}"),
+            redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-payment", "paykey", res.payKey)),
             username_to: api.config.subject || api.config.username
           })
         }
@@ -532,7 +548,8 @@ module PaypalService
           binding.pry
           DataTypes::Merchant.create_set_pay_response({
             token: res.preapprovalKey,
-            redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/webscr?cmd=_ap-preapproval&preapprovalkey=#{res.preapprovalKey}"),
+            # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/webscr?cmd=_ap-preapproval&preapprovalkey=#{res.preapprovalKey}"),
+            redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-preapproval", "preapprovalkey", res.preapprovalKey)),
             username_to: api.config.subject || api.config.username
           })
         }

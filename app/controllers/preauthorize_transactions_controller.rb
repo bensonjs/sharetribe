@@ -499,7 +499,7 @@ binding.pry
 
         {
           merchant_brand_logo_url: logo_url,
-          success_url: "http://lvh.me:3000/en/paypal_service/checkout_orders/success?token=${preapprovalkey}",
+          success_url: success_paypal_service_checkout_orders_url + "?token=${preapprovalkey}",
           cancel_url: cancel_paypal_service_checkout_orders_url(listing_id: opts[:listing].id)
         }
       else
