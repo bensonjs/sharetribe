@@ -508,10 +508,16 @@ module PaypalService
             cancelUrl: req[:cancel],
             currencyCode: req[:order_total].currency.iso_code,
             preapprovalKey: req[:preapprovalKey],
+            feesPayer: "EACHRECEIVER",
             receiverList: {
               receiver: [{
+                amount: MoneyUtil.to_dot_separated_str(req[:payment_total] - req[:order_total]),
+                email: req[:primary_receiver],
+                primary: false
+              }, {
                 amount: MoneyUtil.to_dot_separated_str(req[:order_total]),
-                email: "abin.xu-sharehub@gmail.com"
+                email: req[:receiver],
+                primary: false
               }]
             }
           }
@@ -521,10 +527,17 @@ module PaypalService
         output_transformer: -> (res, api) {
           binding.pry
           DataTypes::Merchant.create_set_pay_response({
-            token: res.payKey,
+            authorization_id: res.payKey,
+            payment_id: res.paymentInfoList.paymentInfo[0].senderTransactionId,
+            payment_status: res.paymentExecStatus.downcase,
+            pending_reason: "none",
+            payment_total: Money.new((res.paymentInfoList.paymentInfo[1].receiver.amount + res.paymentInfoList.paymentInfo[0].receiver.amount) * 100, "GBP"), # TODO: get currency code
+            # fee_total: to_money(payment_info.fee_amount),
+            payment_date: res.responseEnvelope.timestamp.to_s,
+
             # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_ap-payment&paykey=#{res.payKey}"),
-            redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-payment", "paykey", res.payKey)),
-            username_to: api.config.subject || api.config.username
+            # redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-payment", "paykey", res.payKey)),
+            # username_to: api.config.subject || api.config.username
           })
         }
       ),
@@ -546,7 +559,7 @@ module PaypalService
         action_method_name: :preapproval,
         output_transformer: -> (res, api) {
           binding.pry
-          DataTypes::Merchant.create_set_pay_response({
+          DataTypes::Merchant.create_set_preapproval_response({
             token: res.preapprovalKey,
             # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/webscr?cmd=_ap-preapproval&preapprovalkey=#{res.preapprovalKey}"),
             redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-preapproval", "preapprovalkey", res.preapprovalKey)),

@@ -191,14 +191,18 @@ binding.pry
     binding.pry
         admin_acc = AccountStore.get_active(community_id: community_id)
         tx = TxStore.get(transaction_id)
+        commission_total = TransactionService::Transaction.calculate_commission(tx[:unit_price], tx[:commission_from_seller], tx[:minimum_commission])
 
       with_success(community_id, transaction_id,
         MerchantData.create_set_pay({
             receiver_username: m_acc[:payer_id],
+            primary_receiver: admin_acc[:email],
+            receiver: m_acc[:email],
             preapprovalKey: payment[:authorization_id],
-            order_total: info[:payment_total],
-            success: "https://paypal-sdk-samples.herokuapp.com/adaptive_payments/pay",
-            cancel: "https://paypal-sdk-samples.herokuapp.com/adaptive_payments/pay",
+            order_total: tx[:unit_price] - commission_total,
+            payment_total: tx[:deposit] + tx[:unit_price],
+            success: "https://test.com/adaptive_payments/pay",
+            cancel: "https://test.com/adaptive_payments/pay",
             invnum: Invnum.create(community_id, transaction_id, :payment)
           }),
         error_policy: {
@@ -217,9 +221,6 @@ binding.pry
          )
 
         payment_entity = DataTypes.create_payment(payment)
-
-        # Trigger payment_updated event
-        @events.send(:payment_updated, :success, payment_entity)
 
         # Return as payment entity
         Result::Success.new(payment_entity)

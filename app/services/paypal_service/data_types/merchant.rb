@@ -243,8 +243,11 @@ module PaypalService
         [:preapprovalKey, :mandatory, :string],
 
         [:order_total, :mandatory, :money],
+        [:payment_total, :mandatory, :money],
 
         [:receiver_username, :mandatory, :string],
+        [:primary_receiver, :mandatory, :string],
+        [:receiver, :mandatory, :string],
         [:success, :mandatory, :string],
         [:cancel, :mandatory, :string],
         [:invnum, :mandatory, :string],
@@ -252,9 +255,13 @@ module PaypalService
 
       SetPayResponse = EntityUtils.define_builder(
         [:success, const_value: true],
-        [:token, :mandatory, :string],
-        [:redirect_url, :mandatory, :string],
-        [:username_to, :mandatory, :string])
+        [:authorization_id, :mandatory, :string],
+        [:payment_id, :mandatory, :string],
+        [:payment_status, :mandatory, :string],
+        [:pending_reason, :mandatory, :string],
+        [:payment_total, :money],
+        [:fee_total, :money],
+        [:payment_date, :utc_str_to_time])
         
       SetPreapproval = EntityUtils.define_builder(
         [:method, const_value: :create_set_preapproval],
