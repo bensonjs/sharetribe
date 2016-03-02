@@ -511,7 +511,7 @@ module PaypalService
             feesPayer: "EACHRECEIVER",
             receiverList: {
               receiver: [{
-                amount: MoneyUtil.to_dot_separated_str(req[:payment_total] - req[:order_total]),
+                amount: MoneyUtil.to_dot_separated_str(req[:primary_total]),
                 email: req[:primary_receiver],
                 primary: false
               }, {

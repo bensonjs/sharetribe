@@ -243,7 +243,7 @@ module PaypalService
         [:preapprovalKey, :mandatory, :string],
 
         [:order_total, :mandatory, :money],
-        [:payment_total, :mandatory, :money],
+        [:primary_total, :mandatory, :money],
 
         [:receiver_username, :mandatory, :string],
         [:primary_receiver, :mandatory, :string],
