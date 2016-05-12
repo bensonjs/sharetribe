@@ -78,6 +78,10 @@ gem "premailer", "~> 1.8.2"
 gem 'stringex', '~> 2.5.2'
 gem 'paypal-sdk-permissions', '~> 1.96.4'
 gem 'paypal-sdk-merchant', '~> 1.116.0'
+gem 'paypal-sdk-adaptivepayments',
+  :git    => 'git://github.com/paypal/adaptivepayments-sdk-ruby.git',
+  :branch => 'master',
+  :ref    => '47c6bcee5ba9593c3436100913f146d743fa9488'
 gem 'airbrake', '~> 4.1.0'
 gem 'librato-rails', "~> 0.11.1"
 

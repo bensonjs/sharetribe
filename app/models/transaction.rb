@@ -61,6 +61,7 @@ class Transaction < ActiveRecord::Base
     :unit_price,
     :unit_tr_key,
     :unit_selector_tr_key,
+    :deposit,
     :shipping_price,
     :delivery_method
   )
@@ -86,6 +87,7 @@ class Transaction < ActiveRecord::Base
 
   monetize :minimum_commission_cents, with_model_currency: :minimum_commission_currency
   monetize :unit_price_cents, with_model_currency: :unit_price_currency
+  monetize :deposit_cents, with_model_currency: :unit_price_currency
   monetize :shipping_price_cents, allow_nil: true, with_model_currency: :unit_price_currency
 
   scope :for_person, -> (person){

@@ -144,7 +144,7 @@ class AcceptPreauthorizedConversationsController < ApplicationController
     result = TransactionService::Transaction.get(community_id: @current_community.id, transaction_id: @listing_conversation.id)
     transaction = result[:data]
     community_country_code = LocalizationUtils.valid_country_code(@current_community.country)
-
+binding.pry
     render "accept", locals: {
       payment_gateway: :paypal,
       listing: @listing,
@@ -155,7 +155,8 @@ class AcceptPreauthorizedConversationsController < ApplicationController
       fee: transaction[:commission_total],
       shipping_price: transaction[:shipping_price],
       shipping_address: transaction[:shipping_address],
-      seller_gets: transaction[:checkout_total] - transaction[:commission_total],
+      deposit: transaction[:deposit],
+      seller_gets: transaction[:checkout_total] - transaction[:commission_total] - transaction[:deposit],
       form: @listing_conversation, # TODO FIX ME, DONT USE MODEL
       form_action: acceptance_preauthorized_person_message_path(
         person_id: @current_user.id,

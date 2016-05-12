@@ -70,7 +70,7 @@ class TransactionsController < ApplicationController
         booking_fields = Maybe(form).slice(:start_on, :end_on).select { |booking| booking.values.all? }.or_else({})
 
         quantity = Maybe(booking_fields).map { |b| DateUtils.duration_days(b[:start_on], b[:end_on]) }.or_else(form[:quantity])
-
+binding.pry
         TransactionService::Transaction.create(
           {
             transaction: {
@@ -83,6 +83,7 @@ class TransactionsController < ApplicationController
               unit_price: listing_model.price,
               unit_tr_key: listing_model.unit_tr_key,
               listing_quantity: quantity,
+              deposit: listing_model.deposit,
               content: form[:message],
               booking_fields: booking_fields,
               payment_gateway: process[:process] == :none ? :none : gateway, # TODO This is a bit awkward
@@ -100,6 +101,7 @@ class TransactionsController < ApplicationController
   end
 
   def show
+    binding.pry
     m_participant =
       Maybe(
         MarketplaceService::Transaction::Query.transaction_with_conversation(
@@ -280,6 +282,7 @@ class TransactionsController < ApplicationController
   end
 
   def price_break_down_locals(tx)
+  binding.pry
     if tx[:payment_process] == :none && tx[:listing_price].cents == 0
       nil
     else
@@ -299,6 +302,7 @@ class TransactionsController < ApplicationController
         end_on: booking ? tx[:booking][:end_on] : nil,
         duration: booking ? tx[:booking][:duration] : nil,
         quantity: quantity,
+        deposit: tx[:deposit],
         subtotal: show_subtotal ? tx[:listing_price] * quantity : nil,
         total: Maybe(tx[:payment_total]).or_else(tx[:checkout_total]),
         shipping_price: tx[:shipping_price],
@@ -318,7 +322,7 @@ class TransactionsController < ApplicationController
       display_name: PersonViewUtils.person_display_name(author_model, community),
       username: author_model.username
     }
-
+binding.pry
     unit_type = listing_model.unit_type.present? ? ListingViewUtils.translate_unit(listing_model.unit_type, listing_model.unit_tr_key) : nil
     localized_selector_label = listing_model.unit_type.present? ? ListingViewUtils.translate_quantity(listing_model.unit_type, listing_model.unit_selector_tr_key) : nil
     booking_start = Maybe(params)[:start_on].map { |d| TransactionViewUtils.parse_booking_date(d) }.or_else(nil)

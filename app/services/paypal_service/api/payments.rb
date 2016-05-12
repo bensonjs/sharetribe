@@ -8,8 +8,11 @@ module PaypalService::API
     attr_reader :logger
 
     MerchantData = PaypalService::DataTypes::Merchant
+    AdaptivePaymentsData = PaypalService::DataTypes::AdaptivePayments
     TokenStore = PaypalService::Store::Token
     PaymentStore = PaypalService::Store::PaypalPayment
+    AccountStore = PaypalService::Store::PaypalAccount
+    TxStore = TransactionService::Store::Transaction
     Lookup = PaypalService::API::Lookup
     Worker = PaypalService::API::Worker
     Invnum = PaypalService::API::Invnum
@@ -51,6 +54,7 @@ module PaypalService::API
     end
 
     def do_request(community_id, create_payment, m_acc)
+      binding.pry
       create_payment_data = create_payment.merge(
         { receiver_username: m_acc[:payer_id],
           invnum: Invnum.create(community_id, create_payment[:transaction_id], :payment)})
@@ -58,7 +62,10 @@ module PaypalService::API
         if (create_payment[:payment_action] == :order)
           MerchantData.create_set_express_checkout_order(create_payment_data)
         else
-          MerchantData.create_set_express_checkout_authorization(create_payment_data)
+          MerchantData.create_set_preapproval(create_payment_data)
+          # MerchantData.create_set_pay(create_payment_data)
+          # AdaptivePaymentsData.create_set_pay(create_payment_data)
+          # MerchantData.create_set_express_checkout_authorization(create_payment_data)
         end
 
       with_success(community_id, create_payment[:transaction_id],
@@ -78,6 +85,7 @@ module PaypalService::API
           item_name: create_payment[:item_name],
           item_quantity: create_payment[:item_quantity],
           item_price: create_payment[:item_price] || create_payment[:order_total],
+          order_total: create_payment[:order_total],
           shipping_total: create_payment[:shipping_total],
           express_checkout_url: response[:redirect_url]
         })
@@ -115,6 +123,7 @@ module PaypalService::API
 
     ## POST /payments/:community_id/create?token=EC-7XU83376C70426719
     def create(community_id, token, async: false)
+      binding.pry
       @lookup.with_token(community_id, token) do |token|
         if (async)
           proc_token = Worker.enqueue_payments_op(
@@ -131,6 +140,7 @@ module PaypalService::API
     end
 
     def do_create(community_id, token)
+      binding.pry
       existing_payment = @lookup.get_payment_by_token(token)
 
       response =
@@ -145,7 +155,7 @@ module PaypalService::API
         # Delete the token, we have now completed the payment request
         TokenStore.delete(community_id, response[:data][:transaction_id])
       end
-
+binding.pry
       response
     end
 
@@ -177,8 +187,53 @@ module PaypalService::API
         end
       end
     end
-
+    
     def do_full_capture(community_id, transaction_id, info, payment, m_acc)
+    binding.pry
+        admin_acc = AccountStore.get_active(community_id: community_id)
+        tx = TxStore.get(transaction_id)
+        total_price = tx[:unit_price] * tx[:listing_quantity]
+        commission_total = TransactionService::Transaction.calculate_commission(total_price, tx[:commission_from_seller], tx[:minimum_commission])
+
+      with_success(community_id, transaction_id,
+        MerchantData.create_set_pay({
+            receiver_username: m_acc[:payer_id],
+            primary_receiver: admin_acc[:email],
+            receiver: m_acc[:email],
+            preapprovalKey: payment[:authorization_id],
+            order_total: total_price - commission_total,
+            primary_total: tx[:deposit] + commission_total,
+            success: "https://test.com/adaptive_payments/pay",
+            cancel: "https://test.com/adaptive_payments/pay",
+            invnum: Invnum.create(community_id, transaction_id, :payment)
+          }),
+        error_policy: {
+          codes_to_retry: ["10001", "x-timeout", "x-servererror"],
+          try_max: 5,
+          finally: (method :void_failed_payment).call(payment, m_acc)
+        }
+        ) do |payment_res|
+
+binding.pry
+        # Save payment data to payment
+        payment = PaymentStore.update(
+          data: payment_res,
+          community_id: community_id,
+          transaction_id: transaction_id
+         )
+
+        payment_entity = DataTypes.create_payment(payment)
+
+        # Trigger payment_updated event
+        @events.send(:payment_updated, :success, payment_entity)
+
+        # Return as payment entity
+        Result::Success.new(payment_entity)
+      end
+    end
+
+    def do_full_capture_bak(community_id, transaction_id, info, payment, m_acc)
+      binding.pry
       with_success(community_id, transaction_id,
         MerchantData.create_do_full_capture({
             receiver_username: m_acc[:payer_id],
@@ -274,8 +329,30 @@ module PaypalService::API
         false
       end
     end
-
+    
     def create_payment(token)
+      @lookup.with_merchant_account(token[:community_id], token) do |m_acc|
+        # Save payment
+        binding.pry
+          payment = PaymentStore.create(
+            token[:community_id],
+            token[:transaction_id],
+            {receiver_id: m_acc[:payer_id], merchant_id: m_acc[:person_id], payer_id: m_acc[:payer_id], 
+              authorization_total: token[:order_total], currency: token[:order_total].currency.iso_code, payment_status: "pending", pending_reason: token[:payment_action].to_s,
+              authorization_id: token[:token], authorization_date: Time.new}
+          )
+
+          payment_entity = DataTypes.create_payment(payment)
+
+          # Send event payment_crated
+          @events.send(:payment_created, :success, payment_entity)
+
+          # Return as payment entity
+          Result::Success.new(payment_entity)
+      end
+    end
+
+    def create_payment_bak(token)
       @lookup.with_merchant_account(token[:community_id], token) do |m_acc|
         with_success(token[:community_id], token[:transaction_id],
           MerchantData.create_get_express_checkout_details(
@@ -292,11 +369,12 @@ module PaypalService::API
             return Result::Error.new("Payment has not been accepted by the buyer.")
           end
 
-
+binding.pry
           order_details = create_order_details(ec_details)
                           .merge({community_id: token[:community_id], transaction_id: token[:transaction_id]})
+                          binding.pry
           @events.send(:order_details, :success, order_details)
-
+binding.pry
           with_success(token[:community_id], token[:transaction_id],
             MerchantData.create_do_express_checkout_payment({
               payment_action: token[:payment_action],
@@ -324,7 +402,7 @@ module PaypalService::API
               finally: (method :handle_failed_create_payment).call(token)
             }
           ) do |payment_res|
-
+binding.pry
             # Save payment
             payment = PaymentStore.create(
               token[:community_id],

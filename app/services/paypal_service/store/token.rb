@@ -12,6 +12,7 @@ module PaypalService::Store::Token
       [:item_name, :string],
       [:item_quantity, :fixnum],
       [:item_price, :money],
+      [:order_total, :money],
       [:shipping_total, :money],
       [:express_checkout_url, :string, :mandatory]
     )
@@ -22,6 +23,7 @@ module PaypalService::Store::Token
       Token.call(
         EntityUtils.model_to_hash(model).merge({
             item_price: model.item_price,
+            order_total: model.order_total,
             shipping_total: model.shipping_total
         }))
     end
@@ -41,6 +43,7 @@ module PaypalService::Store::Token
       item_name: opts[:item_name],
       item_quantity: opts[:item_quantity],
       item_price: opts[:item_price],
+      order_total: opts[:order_total],
       express_checkout_url: opts[:express_checkout_url]
     }
 

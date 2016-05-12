@@ -123,8 +123,9 @@ module MarketplaceService
         unit_price       = m_transaction.unit_price.or_else(0)
         quantity         = m_transaction.listing_quantity.or_else(1)
         shipping_price   = m_transaction.shipping_price.or_else(0)
+        deposit   = m_transaction.deposit.or_else(0)
 
-        (unit_price * quantity) + shipping_price
+        (unit_price * quantity) + shipping_price + deposit
       end
     end
 

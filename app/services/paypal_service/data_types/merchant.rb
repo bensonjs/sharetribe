@@ -237,7 +237,57 @@ module PaypalService
         [:payment_status, :mandatory, :string],
         [:pending_reason, :string],
         [:transaction_total, :money])
+        
+      SetPay = EntityUtils.define_builder(
+        [:method, const_value: :create_set_pay],
+        [:preapprovalKey, :mandatory, :string],
 
+        [:order_total, :mandatory, :money],
+        [:primary_total, :mandatory, :money],
+
+        [:receiver_username, :mandatory, :string],
+        [:primary_receiver, :mandatory, :string],
+        [:receiver, :mandatory, :string],
+        [:success, :mandatory, :string],
+        [:cancel, :mandatory, :string],
+        [:invnum, :mandatory, :string],
+        [:merchant_brand_logo_url, :optional, :string])
+
+      SetPayResponse = EntityUtils.define_builder(
+        [:success, const_value: true],
+        [:authorization_id, :mandatory, :string],
+        [:payment_id, :mandatory, :string],
+        [:payment_status, :mandatory, :string],
+        [:pending_reason, :mandatory, :string],
+        [:payment_total, :money],
+        [:fee_total, :money],
+        [:payment_date, :utc_str_to_time])
+        
+      SetPreapproval = EntityUtils.define_builder(
+        [:method, const_value: :create_set_preapproval],
+        [:item_name, :mandatory, :string],
+        [:item_quantity, :fixnum, default: 1],
+
+        [:require_shipping_address, :to_bool],
+        [:item_price, :mandatory, :money],
+
+        # If specified, require_shipping_address must be true
+        [:shipping_total, :optional],
+
+        # Must match item_price * item_quantity + shipping_total
+        [:order_total, :mandatory, :money],
+
+        [:receiver_username, :mandatory, :string],
+        [:success, :mandatory, :string],
+        [:cancel, :mandatory, :string],
+        [:invnum, :mandatory, :string],
+        [:merchant_brand_logo_url, :optional, :string])
+
+      SetPreapprovalResponse = EntityUtils.define_builder(
+        [:success, const_value: true],
+        [:token, :mandatory, :string],
+        [:redirect_url, :mandatory, :string],
+        [:username_to, :mandatory, :string])  
 
       module_function
 
@@ -276,6 +326,12 @@ module PaypalService
 
       def create_get_transaction_details(opts); GetTransactionDetails.call(opts) end
       def create_get_transaction_details_response(opts); GetTransactionDetailsResponse.call(opts) end
+      
+      def create_set_pay(opts); SetPay.call(opts) end
+      def create_set_pay_response(opts); SetPayResponse.call(opts) end
+      
+      def create_set_preapproval(opts); SetPreapproval.call(opts) end
+      def create_set_preapproval_response(opts); SetPreapprovalResponse.call(opts) end
 
     end
 

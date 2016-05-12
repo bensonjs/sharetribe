@@ -26,6 +26,7 @@ module PaypalService
 
     def do_request(request)
       action_def = @action_handlers[request[:method]]
+      binding.pry
       return exec_action(action_def, @api_builder.call(request), @config, request) if action_def
 
       raise ArgumentError.new("Unknown request method #{request[:method]}")
@@ -35,9 +36,11 @@ module PaypalService
     def build_api(request)
       req = request.to_h
       if (req[:receiver_username])
-        PayPal::SDK::Merchant.new(nil, { subject: req[:receiver_username] })
+        PayPal::SDK::AdaptivePayments.new(nil, { subject: req[:receiver_username] })
+        # PayPal::SDK::Merchant.new(nil, { subject: req[:receiver_username] })
       else
-        PayPal::SDK::Merchant.new
+        # PayPal::SDK::Merchant.new
+        PayPal::SDK::AdaptivePayments.new
       end
     end
 
@@ -55,6 +58,7 @@ module PaypalService
       wrapped = wrapper_method.call(input)
 
       begin
+        binding.pry
         response = action_method.call(wrapped)
 
         @logger.log_response(response, request_id)

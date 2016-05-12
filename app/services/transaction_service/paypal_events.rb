@@ -102,7 +102,7 @@ module TransactionService::PaypalEvents
     # Commission charge is synchronous and must complete before we
     # transition to paid so that we have the full payment info
     # available at the time we send payment receipts.
-    TransactionService::Transaction.charge_commission(tx[:id])
+    # TransactionService::Transaction.charge_commission(tx[:id])
     MarketplaceService::Transaction::Command.transition_to(tx[:id], :paid)
   end
 

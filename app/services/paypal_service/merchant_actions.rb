@@ -57,9 +57,24 @@ module PaypalService
       end
     end
 
+    # URLs for the paypal adaptive payment
+    SANDBOX_AP_URL = "https://www.sandbox.paypal.com/webscr"
+    LIVE_AP_URL = "https://www.paypal.com/webscr"
+
+    def adaptive_payment_url(api, cmd, tokenParam, token)
+        endpoint = api.config.mode.to_sym
+        if (endpoint == :sandbox)
+          url = URLUtils.append_query_param(SANDBOX_AP_URL, "cmd", cmd)
+          URLUtils.append_query_param(url, tokenParam, token)
+        else
+          url = URLUtils.append_query_param(LIVE_AP_URL, "cmd", cmd)
+          URLUtils.append_query_param(url, tokenParam, token)
+        end
+    end
+
 
     MERCHANT_ACTIONS = {
-      setup_billing_agreement: PaypalAction.def_action(
+      setup_billing_agreement_bak: PaypalAction.def_action(
         input_transformer: -> (req, config) {
           {
             SetExpressCheckoutRequestDetails: {
@@ -77,6 +92,30 @@ module PaypalService
                   BillingType: "ChannelInitiatedBilling",
                   BillingAgreementDescription: req[:description]
                 }]
+            }
+          }
+        },
+        wrapper_method_name: :build_set_express_checkout,
+        action_method_name: :set_express_checkout,
+        output_transformer: -> (res, api) {
+          DataTypes::Merchant.create_setup_billing_agreement_response({
+            token: res.token,
+            redirect_url: express_checkout_url(api, res.token),
+            username_to: api.config.subject || api.config.username
+          })
+        }
+      ),
+      
+      setup_billing_agreement: PaypalAction.def_action(
+        input_transformer: -> (req, config) {
+          {
+            SetExpressCheckoutRequestDetails: {
+              ReturnURL: req[:success],
+              CancelURL: req[:cancel],
+              BillingAgreementDetails: [{
+                  BillingType: "MerchantInitiatedBilling",
+                  BillingAgreementDescription: req[:description]
+              }]
             }
           }
         },
@@ -173,6 +212,21 @@ module PaypalService
           )
         }
       ),
+      
+      get_express_checkout_details_bak: PaypalAction.def_action(
+        input_transformer: -> (req, _) { { preapprovalKey: req[:token] } },
+        wrapper_method_name: :build_preapproval_details,
+        action_method_name: :preapproval_details,
+        output_transformer: -> (res, api) {
+          binding.pry
+          DataTypes::Merchant.create_get_express_checkout_details_response(
+            {
+              token: "testToken",
+              checkout_status: res.status
+            }
+          )
+        }
+      ),
 
       # Deprecated - Order flow will be removed soon
       #
@@ -258,6 +312,7 @@ module PaypalService
         wrapper_method_name: :build_set_express_checkout,
         action_method_name: :set_express_checkout,
         output_transformer: -> (res, api) {
+          binding.pry
           DataTypes::Merchant.create_set_express_checkout_order_response({
             token: res.token,
             redirect_url: append_useraction_commit(express_checkout_url(api, res.token)),
@@ -353,6 +408,7 @@ module PaypalService
 
       do_capture: PaypalAction.def_action(
         input_transformer: -> (req, _) {
+          binding.pry
           {
             AuthorizationID: req[:authorization_id],
             Amount: from_money(req[:payment_total]),
@@ -442,7 +498,76 @@ module PaypalService
             }
           )
         }
+      ),
+      
+      create_set_pay: PaypalAction.def_action(
+        input_transformer: -> (req, config) {
+          {
+            actionType: "PAY",
+            returnUrl: req[:success],
+            cancelUrl: req[:cancel],
+            currencyCode: req[:order_total].currency.iso_code,
+            preapprovalKey: req[:preapprovalKey],
+            feesPayer: "EACHRECEIVER",
+            receiverList: {
+              receiver: [{
+                amount: MoneyUtil.to_dot_separated_str(req[:primary_total]),
+                email: req[:primary_receiver],
+                primary: false
+              }, {
+                amount: MoneyUtil.to_dot_separated_str(req[:order_total]),
+                email: req[:receiver],
+                primary: false
+              }]
+            }
+          }
+        },
+        wrapper_method_name: :build_pay,
+        action_method_name: :pay,
+        output_transformer: -> (res, api) {
+          binding.pry
+          DataTypes::Merchant.create_set_pay_response({
+            authorization_id: res.payKey,
+            payment_id: res.paymentInfoList.paymentInfo[0].senderTransactionId,
+            payment_status: res.paymentExecStatus.downcase,
+            pending_reason: "none",
+            payment_total: Money.new((res.paymentInfoList.paymentInfo[1].receiver.amount + res.paymentInfoList.paymentInfo[0].receiver.amount) * 100, "GBP"), # TODO: get currency code
+            # fee_total: to_money(payment_info.fee_amount),
+            payment_date: res.responseEnvelope.timestamp.to_s,
+
+            # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_ap-payment&paykey=#{res.payKey}"),
+            # redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-payment", "paykey", res.payKey)),
+            # username_to: api.config.subject || api.config.username
+          })
+        }
+      ),
+      
+      create_set_preapproval: PaypalAction.def_action(
+        input_transformer: -> (req, config) {
+          {
+            actionType: "Preapproval",
+            returnUrl: req[:success],
+            cancelUrl: req[:cancel],
+            currencyCode: req[:order_total].currency.iso_code,
+            maxAmountPerPayment: MoneyUtil.to_dot_separated_str(req[:order_total]),
+            maxNumberOfPayments: 1,
+            startingDate: Time.new,
+            endingDate: DateTime.now.to_date + 7
+          }
+        },
+        wrapper_method_name: :build_preapproval,
+        action_method_name: :preapproval,
+        output_transformer: -> (res, api) {
+          binding.pry
+          DataTypes::Merchant.create_set_preapproval_response({
+            token: res.preapprovalKey,
+            # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/webscr?cmd=_ap-preapproval&preapprovalkey=#{res.preapprovalKey}"),
+            redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-preapproval", "preapprovalkey", res.preapprovalKey)),
+            username_to: api.config.subject || api.config.username
+          })
+        }
       )
+      
     }
 
   end

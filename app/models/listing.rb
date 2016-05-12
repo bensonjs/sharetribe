@@ -86,6 +86,7 @@ class Listing < ActiveRecord::Base
   belongs_to :category
 
   monetize :price_cents, :allow_nil => true, with_model_currency: :currency
+  monetize :deposit_cents, :allow_nil => true, with_model_currency: :currency
   monetize :shipping_price_cents, allow_nil: true, with_model_currency: :currency
   monetize :shipping_price_additional_cents, allow_nil: true, with_model_currency: :currency
 

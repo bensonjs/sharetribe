@@ -181,13 +181,13 @@ module TransactionService::Transaction
   end
 
   def to_tx_response(tx)
+    binding.pry
     gw = gateway_adapter(tx[:payment_gateway])
     payment_details = gw.get_payment_details(tx: tx)
 
     item_total = tx[:unit_price] * tx[:listing_quantity]
     commission_total = calculate_commission(item_total, tx[:commission_from_seller], tx[:minimum_commission])
-
-
+binding.pry
     DataTypes.create_transaction(
       {
         id: tx[:id],
@@ -202,6 +202,7 @@ module TransactionService::Transaction
         unit_tr_key: tx[:unit_tr_key],
         unit_selector_tr_key: tx[:unit_selector_tr_key],
         item_total: item_total,
+        deposit: tx[:deposit],
         shipping_price: tx[:shipping_price],
         listing_author_id: tx[:listing_author_id],
         listing_quantity: tx[:listing_quantity],

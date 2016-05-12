@@ -62,6 +62,7 @@ class PreauthorizeTransactionsController < ApplicationController
       localized_unit_type: translate_unit_from_listing(vprms[:listing]),
       localized_selector_label: translate_selector_label_from_listing(vprms[:listing]),
       subtotal: (quantity > 1 || vprms[:listing][:shipping_price].present?) ? vprms[:subtotal] : nil,
+      deposit: vprms[:listing][:deposit],
       shipping_price: delivery_method == :shipping ? vprms[:shipping_price] : nil,
       total: vprms[:total_price]
     })
@@ -179,6 +180,7 @@ class PreauthorizeTransactionsController < ApplicationController
       localized_unit_type: translate_unit_from_listing(vprms[:listing]),
       localized_selector_label: translate_selector_label_from_listing(vprms[:listing]),
       subtotal: vprms[:subtotal],
+      deposit: vprms[:deposit],
       shipping_price: delivery_method == :shipping ? vprms[:shipping_price] : nil,
       total: vprms[:total_price]
     })
@@ -192,6 +194,7 @@ class PreauthorizeTransactionsController < ApplicationController
       listing: vprms[:listing],
       delivery_method: delivery_method,
       subtotal: vprms[:subtotal],
+      deposit: vprms[:deposit],
       author: query_person_entity(vprms[:listing][:author_id]),
       action_button_label: vprms[:action_button_label],
       expiration_period: MarketplaceService::Transaction::Entity.authorization_expiration_period(vprms[:payment_type]),
@@ -201,6 +204,7 @@ class PreauthorizeTransactionsController < ApplicationController
   end
 
   def booked
+    binding.pry
     payment_type = MarketplaceService::Community::Query.payment_type(@current_community.id)
     conversation_params = params[:listing_conversation]
 
@@ -230,7 +234,7 @@ class PreauthorizeTransactionsController < ApplicationController
         preauthorize_form.errors.full_messages.join(", "),
        { action: :book, start_on: TransactionViewUtils.stringify_booking_date(start_on), end_on: TransactionViewUtils.stringify_booking_date(end_on) })
     end
-
+binding.pry
     transaction_response = create_preauth_transaction(
       payment_type: payment_type,
       community: @current_community,
@@ -288,6 +292,7 @@ class PreauthorizeTransactionsController < ApplicationController
       localized_unit_type: translate_unit_from_listing(vprms[:listing]),
       localized_selector_label: translate_selector_label_from_listing(vprms[:listing]),
       subtotal: (quantity > 1) ? vprms[:subtotal] : nil,
+      deposit: (quantity > 1) ? vprms[:deposit] : nil,
       total: vprms[:total_price]
     })
 
@@ -378,13 +383,18 @@ class PreauthorizeTransactionsController < ApplicationController
     action_button_label = translate(listing[:action_button_tr_key])
 
     subtotal = listing[:price] * quantity
+    deposit = listing[:deposit]
     shipping_price = shipping_price_total(listing[:shipping_price], listing[:shipping_price_additional], quantity)
     total_price = shipping_enabled ? subtotal + shipping_price : subtotal
+    if (deposit != nil)
+        total_price += deposit;
+    end
 
     { listing: listing,
       payment_type: payment_type,
       action_button_label: action_button_label,
       subtotal: subtotal,
+      deposit: deposit,
       shipping_price: shipping_price,
       total_price: total_price }
   end
@@ -492,13 +502,13 @@ class PreauthorizeTransactionsController < ApplicationController
 
         {
           merchant_brand_logo_url: logo_url,
-          success_url: success_paypal_service_checkout_orders_url,
+          success_url: success_paypal_service_checkout_orders_url + "?token=${preapprovalkey}",
           cancel_url: cancel_paypal_service_checkout_orders_url(listing_id: opts[:listing].id)
         }
       else
         BraintreeForm.new(opts[:bt_payment_params]).to_hash
       end
-
+binding.pry
     transaction = {
           community_id: opts[:community].id,
           listing_id: opts[:listing].id,
@@ -509,6 +519,7 @@ class PreauthorizeTransactionsController < ApplicationController
           unit_type: opts[:listing].unit_type,
           unit_price: opts[:listing].price,
           unit_tr_key: opts[:listing].unit_tr_key,
+          deposit: opts[:listing].deposit,
           unit_selector_tr_key: opts[:listing].unit_selector_tr_key,
           content: opts[:content],
           payment_gateway: opts[:payment_type],
