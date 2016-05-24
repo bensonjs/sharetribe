@@ -114,11 +114,23 @@ module TransactionService::Transaction
 
   def complete_preauthorization(community_id:, transaction_id:, message: nil, sender_id: nil)
     tx = TxStore.get_in_community(community_id: community_id, transaction_id: transaction_id)
-
+binding.pry
     tx_process = tx_process(tx[:payment_process])
     gw = gateway_adapter(tx[:payment_gateway])
 
     res = tx_process.complete_preauthorization(tx: tx, message: message, sender_id: sender_id, gateway_adapter: gw)
+    res.maybe()
+      .map { |gw_fields| Result::Success.new(DataTypes.create_transaction_response(query(tx[:id]), gw_fields)) }
+      .or_else(res)
+  end
+
+  def complete_confirmation(community_id:, transaction_id:, message: nil, sender_id: nil)
+    tx = TxStore.get_in_community(community_id: community_id, transaction_id: transaction_id)
+binding.pry
+    tx_process = tx_process(tx[:payment_process])
+    gw = gateway_adapter(tx[:payment_gateway])
+
+    res = tx_process.complete_confirmation(tx: tx, message: message, sender_id: sender_id, gateway_adapter: gw)
     res.maybe()
       .map { |gw_fields| Result::Success.new(DataTypes.create_transaction_response(query(tx[:id]), gw_fields)) }
       .or_else(res)

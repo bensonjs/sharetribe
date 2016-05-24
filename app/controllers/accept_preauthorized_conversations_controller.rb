@@ -12,7 +12,10 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   # Skip auth token check as current jQuery doesn't provide it automatically
   skip_before_filter :verify_authenticity_token
 
+  MessageForm = Form::Message
+
   def accept
+    binding.pry
     tx_id = params[:id]
     tx = TransactionService::API::Api.transactions.query(tx_id)
 
@@ -52,12 +55,30 @@ class AcceptPreauthorizedConversationsController < ApplicationController
     end
   end
 
+  def complete
+    binding.pry
+
+    conversation =      MarketplaceService::Conversation::Query.conversation_for_person(@listing_conversation.conversation.id, @current_user.id, @current_community.id)
+    can_be_confirmed =  MarketplaceService::Transaction::Query.can_transition_to?(@listing_conversation, :completed)
+    other_person =      query_person_entity(@listing_conversation.other_party(@current_user).id)
+
+    render(locals: {
+      action_type: "confirm",
+      message_form: MessageForm.new,
+      listing_transaction: @listing_conversation,
+      can_be_confirmed: can_be_confirmed,
+      other_person: other_person,
+      status: "paid",
+      form: @listing_conversation # TODO fix me, don't pass objects
+    })
+  end
+
   def accepted_or_rejected
     tx_id = params[:id]
     message = params[:listing_conversation][:message_attributes][:content]
     status = params[:listing_conversation][:status].to_sym
     sender_id = @current_user.id
-
+binding.pry
     tx = TransactionService::API::Api.transactions.query(tx_id)
 
     if tx[:current_state] != :preauthorized
@@ -106,6 +127,17 @@ class AcceptPreauthorizedConversationsController < ApplicationController
       .maybe()
       .map { |_| {flow: :reject, success: true}}
       .or_else({flow: :reject, success: false})
+  end
+
+  def complete_confirmation(community_id, tx_id, message, sender_id)
+    binding.pry
+    TransactionService::Transaction.complete_confirmation(community_id: community_id,
+                                                              transaction_id: tx_id,
+                                                              message: message,
+                                                              sender_id: sender_id)
+      .maybe()
+      .map { |_| {flow: :accept, success: true}}
+      .or_else({flow: :accept, success: false})
   end
 
   def success_msg(flow)
@@ -189,5 +221,12 @@ binding.pry
       ),
       preselected_action: preselected_action
     }
+  end
+
+  def query_person_entity(id)
+    person_entity = MarketplaceService::Person::Query.person(id, @current_community.id)
+    person_display_entity = person_entity.merge(
+      display_name: PersonViewUtils.person_entity_display_name(person_entity, @current_community.name_display_type)
+    )
   end
 end

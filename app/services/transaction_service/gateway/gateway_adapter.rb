@@ -29,6 +29,10 @@ module TransactionService::Gateway
       raise InterfaceMethodNotImplementedError.new
     end
 
+    def complete_confirmation(tx:)
+      raise InterfaceMethodNotImplementedError.new
+    end
+
     def get_payment_details(tx:)
       raise InterfaceMethodNotImplementedError.new
     end

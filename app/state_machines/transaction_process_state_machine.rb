@@ -13,6 +13,7 @@ class TransactionProcessStateMachine
   state :paid
   state :confirmed
   state :canceled
+  state :completed
 
   transition from: :not_started,               to: [:free, :pending, :preauthorized, :initiated]
   transition from: :initiated,                 to: [:preauthorized]
@@ -21,6 +22,7 @@ class TransactionProcessStateMachine
   transition from: :pending_ext,               to: [:paid, :rejected]
   transition from: :accepted,                  to: [:paid, :canceled]
   transition from: :paid,                      to: [:confirmed, :canceled]
+  transition from: :confirmed,                 to: [:completed, :canceled]
 
   guard_transition(to: :pending) do |conversation|
     conversation.requires_payment?(conversation.community)
@@ -72,6 +74,11 @@ class TransactionProcessStateMachine
     confirmation = ConfirmConversation.new(conversation, conversation.starter, conversation.community)
     confirmation.cancel!
     confirmation.cancel_escrow!
+  end
+
+  after_transition(to: :completed) do |conversation|
+    confirmation = ConfirmConversation.new(conversation, conversation.starter, conversation.community)
+    confirmation.complete!
   end
 
 end

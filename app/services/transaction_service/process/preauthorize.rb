@@ -46,6 +46,20 @@ module TransactionService::Process
       res
     end
 
+    def complete_confirmation(tx:, message:, sender_id:, gateway_adapter:)
+      res = Gateway.unwrap_completion(
+        gateway_adapter.complete_confirmation(tx: tx)) do
+
+        Transition.transition_to(tx[:id], :paid)
+      end
+
+      if res[:success] && message.present?
+        send_message(tx, message, sender_id)
+      end
+
+      res
+    end
+
     def complete(tx:, message:, sender_id:, gateway_adapter:)
       Transition.transition_to(tx[:id], :confirmed)
       TxStore.mark_as_unseen_by_other(community_id: tx[:community_id],
