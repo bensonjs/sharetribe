@@ -18,6 +18,7 @@ class ConfirmConversation
 
   # Listing confirmed by user
   def confirm!
+    binding.pry
     Delayed::Job.enqueue(TransactionConfirmedJob.new(@transaction.id, @community.id))
     [3, 10].each do |send_interval|
       Delayed::Job.enqueue(TestimonialReminderJob.new(@transaction.id, nil, @community.id), :priority => 10, :run_at => send_interval.days.from_now)

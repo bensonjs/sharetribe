@@ -12,6 +12,7 @@ class ConfirmConversationsController < ApplicationController
   MessageForm = Form::Message
 
   def confirm
+    binding.pry
     unless in_valid_pre_state(@listing_transaction)
       return redirect_to person_transaction_path(person_id: @current_user.id, message_id: @listing_transaction.id)
     end
@@ -102,6 +103,7 @@ class ConfirmConversationsController < ApplicationController
   end
 
   def ensure_is_starter
+    binding.pry
     unless @listing_transaction.starter == @current_user
       flash[:error] = "Only listing starter can perform the requested action"
       redirect_to (session[:return_to_content] || root)

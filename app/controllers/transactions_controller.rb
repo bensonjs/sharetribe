@@ -134,7 +134,7 @@ binding.pry
     tx_model = Transaction.where(id: tx[:id]).first
     conversation = transaction_conversation[:conversation]
     listing = Listing.where(id: tx[:listing_id]).first
-
+binding.pry
     messages_and_actions = TransactionViewUtils::merge_messages_and_transitions(
       TransactionViewUtils.conversation_messages(conversation[:messages], @current_community.name_display_type),
       TransactionViewUtils.transition_messages(transaction_conversation, conversation, @current_community.name_display_type))

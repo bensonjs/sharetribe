@@ -210,6 +210,7 @@ module TransactionHelper
   #   }
   # }
   def get_conversation_statuses(conversation, is_author)
+    binding.pry
     statuses = if conversation.listing && !conversation.status.eql?("free")
       status_hash = {
         pending: ->() { {
@@ -277,6 +278,26 @@ module TransactionHelper
           end
         },
         confirmed: ->() { {
+          #both: [
+          #  status_info(t("conversations.status.request_confirmed"), icon_classes: icon_for("confirmed")),
+          #  feedback_status(conversation, @current_community.testimonials_in_use)
+          #]
+          author: [
+            status_info(t("conversations.status.waiting_confirmation_from_you"), icon_classes: icon_for("confirmed")),
+            waiting_for_author_to_confirm(conversation)
+          ],
+          starter: [
+            status_info(t("conversations.status.request_confirmed"), icon_classes: icon_for("confirmed")),
+            feedback_status(conversation, @current_community.testimonials_in_use)
+          ]
+        } },
+        completed: ->() { {
+          both: [
+            status_info(t("conversations.status.request_confirmed"), icon_classes: icon_for("confirmed")),
+            feedback_status(conversation, @current_community.testimonials_in_use)
+          ]
+        } },
+        completed: ->() { {
           both: [
             status_info(t("conversations.status.request_confirmed"), icon_classes: icon_for("confirmed")),
             feedback_status(conversation, @current_community.testimonials_in_use)
@@ -447,6 +468,23 @@ module TransactionHelper
         link_text_with_icon: link_text_with_icon(transaction, "reject_preauthorized")
       }
     ]);
+  end
+
+  def waiting_for_author_to_confirm(conversation)
+    status_links([
+      {
+        link_href: complete_person_message_path(@current_user, :id => conversation.id),
+        link_classes: "confirm",
+        link_icon_with_text_classes: icon_for("confirmed"),
+        link_text_with_icon: link_text_with_icon(conversation, "confirm")
+      },
+      {
+        link_href: cancel_person_message_path(@current_user, :id => conversation.id),
+        link_classes: "cancel",
+        link_icon_with_text_classes: icon_for("canceled"),
+        link_text_with_icon: link_text_with_icon(conversation, "cancel")
+      }
+    ])
   end
 
   def feedback_pending_status(conversation)
