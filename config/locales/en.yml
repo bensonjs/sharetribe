@@ -1527,6 +1527,8 @@ en:
         shipping_price: "Shipping fee"
         shipping_price_additional: "Additional items"
         pickup: Pickup
+      deposit:
+        deposit: Deposit
       origin:
         location: Location
         origin: Origin

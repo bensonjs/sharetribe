@@ -1,0 +1,2 @@
+= form.label :deposit, t(".deposit"), :class => "input"
+= form.text_field(:deposit, :class => "deposit_text_field", :maxlength => "10", :placeholder => "0", :value => (@listing.deposit ? @listing.deposit.to_s: 0))

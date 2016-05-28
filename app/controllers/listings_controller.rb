@@ -745,6 +745,8 @@ class ListingsController < ApplicationController
         hash.merge(:shipping_price_cents =>  MoneyUtil.parse_str_to_subunits(v, currency))
       when "shipping_price_additional"
         hash.merge(:shipping_price_additional_cents =>  MoneyUtil.parse_str_to_subunits(v, currency))
+      when "deposit"
+        hash.merge(:deposit_cents =>  MoneyUtil.parse_str_to_subunits(v, currency))
       else
         hash.merge(k.to_sym => v)
       end
@@ -805,6 +807,7 @@ class ListingsController < ApplicationController
       require_shipping_address: Maybe(params[:delivery_methods]).map { |d| d.include?("shipping") }.or_else(false),
       pickup_enabled: Maybe(params[:delivery_methods]).map { |d| d.include?("pickup") }.or_else(false),
       price_cents: params[:price_cents],
+      deposit_cents: params[:deposit_cents],
       shipping_price_cents: params[:shipping_price_cents],
       shipping_price_additional_cents: params[:shipping_price_additional_cents],
       currency: params[:currency]

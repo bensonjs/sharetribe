@@ -35,7 +35,9 @@ module PaypalService
 
     def build_api(request)
       req = request.to_h
-      if (req[:receiver_username])
+      if (request[:method] == :setup_billing_agreement || request[:method] == :create_billing_agreement || request[:method] == :get_express_checkout_details)
+        PayPal::SDK::Merchant.new
+      elsif (req[:receiver_username])
         PayPal::SDK::AdaptivePayments.new(nil, { subject: req[:receiver_username] })
         # PayPal::SDK::Merchant.new(nil, { subject: req[:receiver_username] })
       else

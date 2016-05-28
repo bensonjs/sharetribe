@@ -204,6 +204,11 @@ class Listing < ActiveRecord::Base
     price ? price.symbol : MoneyRails.default_currency.symbol
   end
 
+  # The price symbol based on this listing's price or community default, if no price set
+  def deposit_symbol
+    deposit ? deposit.symbol : MoneyRails.default_currency.symbol
+  end
+
   def answer_for(custom_field)
     custom_field_values.find { |value| value.custom_field_id == custom_field.id }
   end

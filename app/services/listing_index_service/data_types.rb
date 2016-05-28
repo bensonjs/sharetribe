@@ -70,6 +70,7 @@ module ListingIndexService::DataTypes
     [:address, :string],
     [:comment_count, :fixnum, :optional],
     [:price, :money],
+    [:deposit, :money],
     [:unit_tr_key, :string], # TODO is this mandatory?
     [:unit_type], # TODO Symbol or string?
     [:quantity, :string], # This is outdated
