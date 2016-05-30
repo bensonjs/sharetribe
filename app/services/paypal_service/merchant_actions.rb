@@ -570,9 +570,16 @@ module PaypalService
 
       return_deposit: PaypalAction.def_action(
         input_transformer: -> (req, config) {
-            binding.pry
           {
             actionType: "Refund",
+            payKey: req[:payKey],
+            receiverList: {
+                receiver: [{
+                    email: req[:primary_receiver],
+                    amount: MoneyUtil.to_dot_separated_str(req[:deposit_total]),
+                    primary: false
+                }]
+            },
             returnUrl: req[:success],
             cancelUrl: req[:cancel],
             currencyCode: req[:deposit_total].currency.iso_code
@@ -583,14 +590,12 @@ module PaypalService
         output_transformer: -> (res, api) {
           binding.pry
           DataTypes::Merchant.create_return_deposit_response({
-            token: res.preapprovalKey,
-            # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/webscr?cmd=_ap-preapproval&preapprovalkey=#{res.preapprovalKey}"),
-            redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-preapproval", "preapprovalkey", res.preapprovalKey)),
-            username_to: api.config.subject || api.config.username
+            return_deposit_id: res.refundInfoList.refundInfo[0].encryptedRefundTransactionId,
+            deposit_total: Money.new(res.refundInfoList.refundInfo[0].receiver.amount * 100, res.currencyCode),
+            return_deposit_date: res.responseEnvelope.timestamp.to_s
           })
         }
       )
-      
     }
 
   end

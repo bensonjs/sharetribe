@@ -296,12 +296,6 @@ module TransactionHelper
             feedback_status(conversation, @current_community.testimonials_in_use)
           ]
         } },
-        completed: ->() { {
-          both: [
-            status_info(t("conversations.status.request_confirmed"), icon_classes: icon_for("confirmed")),
-            feedback_status(conversation, @current_community.testimonials_in_use)
-          ]
-        } },
         canceled: ->() { {
           both: [
             status_info(t("conversations.status.request_canceled"), icon_classes: icon_for("canceled")),

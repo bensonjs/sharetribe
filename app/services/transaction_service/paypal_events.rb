@@ -13,6 +13,7 @@ module TransactionService::PaypalEvents
 
   def payment_updated(flow, payment)
     tx = MarketplaceService::Transaction::Query.transaction(payment[:transaction_id])
+    binding.pry
     if tx
       case transition_type(tx, payment)
       when :initiated_to_preauthorized
@@ -21,6 +22,8 @@ module TransactionService::PaypalEvents
         delete_transaction(cid: tx[:community_id], tx_id: tx[:id])
       when :preauthorized_to_paid
         preauthorized_to_paid(tx)
+      when :preauthorized_to_completed
+        preauthorized_to_completed(tx)
       when :preauthorized_to_pending_ext
         preauthorized_to_pending_ext(tx, payment[:pending_reason])
       when :pending_ext_to_paid
@@ -64,7 +67,8 @@ module TransactionService::PaypalEvents
     [:pending_ext_to_paid,          [:pending_ext, :completed]],
     [:preauthorized_to_voided,      [:preauthorized, :voided]],
     [:preauthorized_to_expired,     [:preauthorized, :expired]],
-    [:pending_ext_to_denied,        [:pending_ext, :denied]]
+    [:pending_ext_to_denied,        [:pending_ext, :denied]],
+    [:preauthorized_to_completed,   [:confirmed, :completed]]
   ]
 
   def transition_type(tx, payment)
@@ -104,6 +108,10 @@ module TransactionService::PaypalEvents
     # available at the time we send payment receipts.
     # TransactionService::Transaction.charge_commission(tx[:id])
     MarketplaceService::Transaction::Command.transition_to(tx[:id], :paid)
+  end
+
+  def preauthorized_to_completed(tx)
+    MarketplaceService::Transaction::Command.transition_to(tx[:id], :completed)
   end
 
   def preauthorized_to_pending_ext(tx, pending_reason)

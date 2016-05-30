@@ -25,6 +25,15 @@ class ConfirmConversation
     release_escrow if @hold_in_escrow
   end
 
+  def complete!
+  binding.pry
+    Delayed::Job.enqueue(TransactionConfirmedJob.new(@transaction.id, @community.id))
+    [3, 10].each do |send_interval|
+      Delayed::Job.enqueue(TestimonialReminderJob.new(@transaction.id, nil, @community.id), :priority => 9, :run_at => send_interval.days.from_now)
+    end
+    release_escrow if @hold_in_escrow
+  end
+
   # Listing canceled by user
   def cancel!
     Delayed::Job.enqueue(TransactionCanceledJob.new(@transaction.id, @community.id))

@@ -221,7 +221,7 @@ binding.pry
           community_id: community_id,
           transaction_id: transaction_id
          )
-
+binding.pry
         payment_entity = DataTypes.create_payment(payment)
 
         # Trigger payment_updated event
@@ -336,11 +336,11 @@ binding.pry
         admin_acc = AccountStore.get_active(community_id: community_id)
         tx = TxStore.get(transaction_id)
         total_price = tx[:unit_price] * tx[:listing_quantity]
-        commission_total = TransactionService::Transaction.calculate_commission(total_price, tx[:commission_from_seller], tx[:minimum_commission])
 
       with_success(community_id, transaction_id,
         MerchantData.create_return_deposit({
             payKey: payment[:authorization_id],
+            primary_receiver: admin_acc[:email],
             deposit_total: tx[:deposit],
             success: "https://test.com/adaptive_payments/pay",
             cancel: "https://test.com/adaptive_payments/pay",
@@ -360,7 +360,7 @@ binding.pry
           community_id: community_id,
           transaction_id: transaction_id
          )
-
+binding.pry
         payment_entity = DataTypes.create_payment(payment)
 
         # Trigger payment_updated event

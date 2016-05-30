@@ -155,7 +155,7 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   end
 
   def completed_or_rejected_tx(community_id, tx_id, status, sender_id)
-    if (status == :confirmed)
+    if (status == :completed)
       complete_confirmation_tx(community_id, tx_id, sender_id)
     elsif (status == :rejected)
       reject_complete_tx(community_id, tx_id, sender_id)
@@ -181,6 +181,8 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   def success_msg(flow)
     if flow == :accept
       t("layouts.notifications.request_accepted")
+    elsif flow == :complete
+      t("layouts.notifications.transaction_completed")
     elsif flow == :reject
       t("layouts.notifications.request_rejected")
     end

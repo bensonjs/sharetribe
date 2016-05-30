@@ -120,6 +120,11 @@ module TransactionViewUtils
         sender: starter,
         mood: :positive
       }
+    when "completed"
+      {
+        sender: author,
+        mood: :positive
+      }
     else
       raise("Unknown transition to state: #{transition[:to_state]}")
     end
@@ -153,6 +158,8 @@ module TransactionViewUtils
       t("conversations.message.canceled_request")
     when "confirmed"
       t("conversations.message.confirmed_request")
+    when "completed"
+      t("conversations.message.completed_request")
     else
       raise("Unknown transition to state: #{state}")
     end

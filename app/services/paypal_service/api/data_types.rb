@@ -47,7 +47,10 @@ module PaypalService::API::DataTypes
     [:commission_total, :money],
     [:commission_fee_total, :money],
     [:commission_status, one_of: [:not_charged, :completed, :pending, :seller_is_admin, :below_minimum, :not_applicable, :errored]],
-    [:commission_pending_reason, transform_with: -> (v) { (v.is_a? String) ? v.downcase.gsub("-", "").to_sym : v }]
+    [:commission_pending_reason, transform_with: -> (v) { (v.is_a? String) ? v.downcase.gsub("-", "").to_sym : v }],
+    [:return_deposit_id, :string],
+    [:return_deposit_date, :time],
+    [:deposit_total, :money]
   )
 
   AuthorizationInfo = EntityUtils.define_builder(

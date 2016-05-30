@@ -65,7 +65,10 @@ class PaypalPayment < ActiveRecord::Base
     :commission_total_cents,
     :commission_fee_total_cents,
     :commission_status,
-    :commission_pending_reason)
+    :commission_pending_reason,
+    :return_deposit_id,
+    :return_deposit_date,
+    :deposit_total_cents)
 
   validates_presence_of(
     :community_id,
@@ -82,5 +85,6 @@ class PaypalPayment < ActiveRecord::Base
   monetize :fee_total_cents,            with_model_currency: :currency, allow_nil: true
   monetize :commission_total_cents,     with_model_currency: :currency, allow_nil: true
   monetize :commission_fee_total_cents, with_model_currency: :currency, allow_nil: true
+  monetize :deposit_total_cents,        with_model_currency: :currency, allow_nil: true
 
 end

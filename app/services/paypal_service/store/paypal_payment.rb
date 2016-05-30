@@ -44,7 +44,10 @@ module PaypalService::Store::PaypalPayment
     [:commission_total, :money],
     [:commission_fee_total, :money],
     [:commission_status, :mandatory, :symbol],
-    [:commission_pending_reason, :string])
+    [:commission_pending_reason, :string],
+    [:return_deposit_id, :string],
+    [:return_deposit_date, :time],
+    [:deposit_total, :money])
 
   OPT_UPDATE_FIELDS = [
     :order_id,
@@ -62,7 +65,10 @@ module PaypalService::Store::PaypalPayment
     :commission_payment_date,
     :commission_total_cents,
     :commission_fee_total_cents,
-    :commission_pending_reason
+    :commission_pending_reason,
+    :return_deposit_id,
+    :return_deposit_date,
+    :deposit_total_cents
   ]
 
   module_function
@@ -118,7 +124,8 @@ module PaypalService::Store::PaypalPayment
           payment_status: paypal_payment[:payment_status].to_sym,
           commission_total: paypal_payment.commission_total,
           commission_fee_total: paypal_payment.commission_fee_total,
-          commission_status: paypal_payment[:commission_status].to_sym
+          commission_status: paypal_payment[:commission_status].to_sym,
+          deposit_total: paypal_payment.deposit_total
         }))
 
     PaypalPayment.call(hash)
@@ -153,7 +160,7 @@ module PaypalService::Store::PaypalPayment
   end
 
   def create_payment_update(update, current_state)
-    cent_totals = [:order_total, :authorization_total, :fee_total, :payment_total, :commission_total, :commission_fee_total]
+    cent_totals = [:order_total, :authorization_total, :fee_total, :payment_total, :commission_total, :commission_fee_total, :deposit_total]
       .reduce({}) do |cent_totals, m_key|
       m = update[m_key]
       cent_totals["#{m_key}_cents".to_sym] = m.cents unless m.nil?

@@ -292,12 +292,14 @@ module PaypalService
       ReturnDeposit = EntityUtils.define_builder(
         [:method, const_value: :return_deposit],
         [:payKey, :mandatory, :string],
+        [:primary_receiver, :mandatory, :string],
         [:deposit_total, :mandatory, :money])
 
       ReturnDepositResponse = EntityUtils.define_builder(
         [:success, const_value: true],
-        [:authorization_id, :mandatory, :string],
-        [:payment_date, :utc_str_to_time])
+        [:return_deposit_id, :mandatory, :string],
+        [:deposit_total, :money],
+        [:return_deposit_date, :utc_str_to_time])
 
       module_function
 
