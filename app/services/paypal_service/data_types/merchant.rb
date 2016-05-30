@@ -287,7 +287,17 @@ module PaypalService
         [:success, const_value: true],
         [:token, :mandatory, :string],
         [:redirect_url, :mandatory, :string],
-        [:username_to, :mandatory, :string])  
+        [:username_to, :mandatory, :string])
+
+      ReturnDeposit = EntityUtils.define_builder(
+        [:method, const_value: :return_deposit],
+        [:payKey, :mandatory, :string],
+        [:deposit_total, :mandatory, :money])
+
+      ReturnDepositResponse = EntityUtils.define_builder(
+        [:success, const_value: true],
+        [:authorization_id, :mandatory, :string],
+        [:payment_date, :utc_str_to_time])
 
       module_function
 
@@ -332,6 +342,9 @@ module PaypalService
       
       def create_set_preapproval(opts); SetPreapproval.call(opts) end
       def create_set_preapproval_response(opts); SetPreapprovalResponse.call(opts) end
+
+      def create_return_deposit(opts); ReturnDeposit.call(opts) end
+      def create_return_deposit_response(opts); ReturnDepositResponse.call(opts) end
 
     end
 

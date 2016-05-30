@@ -566,6 +566,29 @@ module PaypalService
             username_to: api.config.subject || api.config.username
           })
         }
+      ),
+
+      return_deposit: PaypalAction.def_action(
+        input_transformer: -> (req, config) {
+            binding.pry
+          {
+            actionType: "Refund",
+            returnUrl: req[:success],
+            cancelUrl: req[:cancel],
+            currencyCode: req[:deposit_total].currency.iso_code
+          }
+        },
+        wrapper_method_name: :build_refund,
+        action_method_name: :refund,
+        output_transformer: -> (res, api) {
+          binding.pry
+          DataTypes::Merchant.create_return_deposit_response({
+            token: res.preapprovalKey,
+            # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/webscr?cmd=_ap-preapproval&preapprovalkey=#{res.preapprovalKey}"),
+            redirect_url: append_useraction_commit(adaptive_payment_url(api, "_ap-preapproval", "preapprovalkey", res.preapprovalKey)),
+            username_to: api.config.subject || api.config.username
+          })
+        }
       )
       
     }

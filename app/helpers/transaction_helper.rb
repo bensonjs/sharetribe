@@ -210,7 +210,6 @@ module TransactionHelper
   #   }
   # }
   def get_conversation_statuses(conversation, is_author)
-    binding.pry
     statuses = if conversation.listing && !conversation.status.eql?("free")
       status_hash = {
         pending: ->() { {
@@ -473,7 +472,7 @@ module TransactionHelper
   def waiting_for_author_to_confirm(conversation)
     status_links([
       {
-        link_href: complete_person_message_path(@current_user, :id => conversation.id),
+        link_href: complete_preauthorized_person_message_path(@current_user, :id => conversation.id),
         link_classes: "confirm",
         link_icon_with_text_classes: icon_for("confirmed"),
         link_text_with_icon: link_text_with_icon(conversation, "confirm")

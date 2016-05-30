@@ -15,7 +15,6 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   MessageForm = Form::Message
 
   def accept
-    binding.pry
     tx_id = params[:id]
     tx = TransactionService::API::Api.transactions.query(tx_id)
 
@@ -55,30 +54,12 @@ class AcceptPreauthorizedConversationsController < ApplicationController
     end
   end
 
-  def complete
-    binding.pry
-
-    conversation =      MarketplaceService::Conversation::Query.conversation_for_person(@listing_conversation.conversation.id, @current_user.id, @current_community.id)
-    can_be_confirmed =  MarketplaceService::Transaction::Query.can_transition_to?(@listing_conversation, :completed)
-    other_person =      query_person_entity(@listing_conversation.other_party(@current_user).id)
-
-    render(locals: {
-      action_type: "confirm",
-      message_form: MessageForm.new,
-      listing_transaction: @listing_conversation,
-      can_be_confirmed: can_be_confirmed,
-      other_person: other_person,
-      status: "paid",
-      form: @listing_conversation # TODO fix me, don't pass objects
-    })
-  end
-
   def accepted_or_rejected
     tx_id = params[:id]
     message = params[:listing_conversation][:message_attributes][:content]
     status = params[:listing_conversation][:status].to_sym
     sender_id = @current_user.id
-binding.pry
+
     tx = TransactionService::API::Api.transactions.query(tx_id)
 
     if tx[:current_state] != :preauthorized
@@ -94,6 +75,50 @@ binding.pry
     else
       flash[:error] = error_msg(res[:flow])
       redirect_to accept_preauthorized_person_message_path(person_id: sender_id , id: tx_id)
+    end
+  end
+
+  def complete
+    binding.pry
+    conversation =      MarketplaceService::Conversation::Query.conversation_for_person(@listing_conversation.conversation.id, @current_user.id, @current_community.id)
+    can_be_confirmed =  MarketplaceService::Transaction::Query.can_transition_to?(@listing_conversation, :completed)
+    other_person =      query_person_entity(@listing_conversation.other_party(@current_user).id)
+
+    render(locals: {
+      action_type: "complete",
+      message_form: MessageForm.new,
+      listing_transaction: @listing_conversation,
+      can_be_confirmed: can_be_confirmed,
+      other_person: other_person,
+      status: "paid",
+      form: @listing_conversation, # TODO fix me, don't pass objects
+      form_action: completion_preauthorized_person_message_path(
+        person_id: @current_user.id,
+        id: @listing_conversation.id
+      )
+    })
+  end
+
+  def completed_or_rejected
+    binding.pry
+    tx_id = params[:id]
+    status = params[:listing_conversation][:status].to_sym
+    sender_id = @current_user.id
+    tx = TransactionService::API::Api.transactions.query(tx_id)
+
+    if tx[:current_state] != :confirmed
+      redirect_to person_transaction_path(person_id: @current_user.id, id: tx_id)
+      return
+    end
+
+    res = completed_or_rejected_tx(@current_community.id, tx_id, status, sender_id)
+
+    if res[:success]
+      flash[:notice] = success_msg(res[:flow])
+      redirect_to person_transaction_path(person_id: sender_id, id: tx_id)
+    else
+      flash[:error] = error_msg(res[:flow])
+      redirect_to complete_preauthorized_person_message_path(person_id: sender_id , id: tx_id)
     end
   end
 
@@ -129,15 +154,28 @@ binding.pry
       .or_else({flow: :reject, success: false})
   end
 
-  def complete_confirmation(community_id, tx_id, message, sender_id)
+  def completed_or_rejected_tx(community_id, tx_id, status, sender_id)
+    if (status == :confirmed)
+      complete_confirmation_tx(community_id, tx_id, sender_id)
+    elsif (status == :rejected)
+      reject_complete_tx(community_id, tx_id, sender_id)
+    else
+      {flow: :unknown, success: false}
+    end
+  end
+
+  def complete_confirmation_tx(community_id, tx_id, sender_id)
     binding.pry
     TransactionService::Transaction.complete_confirmation(community_id: community_id,
                                                               transaction_id: tx_id,
-                                                              message: message,
                                                               sender_id: sender_id)
       .maybe()
       .map { |_| {flow: :accept, success: true}}
       .or_else({flow: :accept, success: false})
+  end
+
+  def reject_complete_tx(community_id, tx_id, sender_id)
+    # TODO - reject_complete_tx
   end
 
   def success_msg(flow)

@@ -114,7 +114,7 @@ module TransactionService::Transaction
 
   def complete_preauthorization(community_id:, transaction_id:, message: nil, sender_id: nil)
     tx = TxStore.get_in_community(community_id: community_id, transaction_id: transaction_id)
-binding.pry
+
     tx_process = tx_process(tx[:payment_process])
     gw = gateway_adapter(tx[:payment_gateway])
 
@@ -126,7 +126,7 @@ binding.pry
 
   def complete_confirmation(community_id:, transaction_id:, message: nil, sender_id: nil)
     tx = TxStore.get_in_community(community_id: community_id, transaction_id: transaction_id)
-binding.pry
+
     tx_process = tx_process(tx[:payment_process])
     gw = gateway_adapter(tx[:payment_gateway])
 
@@ -193,13 +193,12 @@ binding.pry
   end
 
   def to_tx_response(tx)
-    binding.pry
     gw = gateway_adapter(tx[:payment_gateway])
     payment_details = gw.get_payment_details(tx: tx)
 
     item_total = tx[:unit_price] * tx[:listing_quantity]
     commission_total = calculate_commission(item_total, tx[:commission_from_seller], tx[:minimum_commission])
-binding.pry
+
     DataTypes.create_transaction(
       {
         id: tx[:id],

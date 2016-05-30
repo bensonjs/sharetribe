@@ -54,7 +54,7 @@ module PaypalService
       wrapper_method = api.method(action_def[:wrapper_method_name])
       action_method = api.method(action_def[:action_method_name])
       output_transformer = action_def[:output_transformer]
-
+binding.pry
       input = input_transformer.call(request, config)
       request_id = @logger.log_request_input(request, input)
       wrapped = wrapper_method.call(input)

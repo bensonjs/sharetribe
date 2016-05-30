@@ -50,7 +50,7 @@ module TransactionService::Process
       res = Gateway.unwrap_completion(
         gateway_adapter.complete_confirmation(tx: tx)) do
 
-        Transition.transition_to(tx[:id], :paid)
+        Transition.transition_to(tx[:id], :completed)
       end
 
       if res[:success] && message.present?

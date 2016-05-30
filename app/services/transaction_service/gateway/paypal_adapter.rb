@@ -62,12 +62,10 @@ module TransactionService::Gateway
 
     def complete_confirmation(tx:)
       AsyncCompletion.new(
-        paypal_api.payments.get_payment(tx[:community_id], tx[:id])
-        .and_then { |payment|
-          paypal_api.payments.full_capture(
+        paypal_api.payments.return_deposit(
             tx[:community_id],
             tx[:id],
-            DataTypes.create_payment_info({ payment_total: payment[:authorization_total] }))})
+            DataTypes.create_payment_info({ payment_total: tx[:deposit] })))
     end
 
     def get_payment_details(tx:)

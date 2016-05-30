@@ -315,6 +315,62 @@ binding.pry
       end
     end
 
+    def return_deposit(community_id, transaction_id, info, async: false)
+      @lookup.with_payment(community_id, transaction_id, [[:completed]]) do |payment, m_acc|
+        if (async)
+          proc_token = Worker.enqueue_payments_op(
+            community_id: community_id,
+            transaction_id: transaction_id,
+            op_name: :do_full_capture,
+            op_input: [community_id, transaction_id, info, payment, m_acc])
+
+          proc_status_response(proc_token)
+        else
+          do_return_deposit(community_id, transaction_id, info, payment, m_acc)
+        end
+      end
+    end
+
+    def do_return_deposit(community_id, transaction_id, info, payment, m_acc)
+    binding.pry
+        admin_acc = AccountStore.get_active(community_id: community_id)
+        tx = TxStore.get(transaction_id)
+        total_price = tx[:unit_price] * tx[:listing_quantity]
+        commission_total = TransactionService::Transaction.calculate_commission(total_price, tx[:commission_from_seller], tx[:minimum_commission])
+
+      with_success(community_id, transaction_id,
+        MerchantData.create_return_deposit({
+            payKey: payment[:authorization_id],
+            deposit_total: tx[:deposit],
+            success: "https://test.com/adaptive_payments/pay",
+            cancel: "https://test.com/adaptive_payments/pay",
+            invnum: Invnum.create(community_id, transaction_id, :payment)
+          }),
+        error_policy: {
+          codes_to_retry: ["10001", "x-timeout", "x-servererror"],
+          try_max: 5,
+          finally: (method :void_failed_payment).call(payment, m_acc)
+        }
+        ) do |payment_res|
+
+binding.pry
+        # Save payment data to payment
+        payment = PaymentStore.update(
+          data: payment_res,
+          community_id: community_id,
+          transaction_id: transaction_id
+         )
+
+        payment_entity = DataTypes.create_payment(payment)
+
+        # Trigger payment_updated event
+        @events.send(:payment_updated, :success, payment_entity)
+
+        # Return as payment entity
+        Result::Success.new(payment_entity)
+      end
+    end
+
 
     private
 
