@@ -289,6 +289,14 @@ module PaypalService
         [:redirect_url, :mandatory, :string],
         [:username_to, :mandatory, :string])
 
+      CancelPreapproval = EntityUtils.define_builder(
+        [:method, const_value: :cancel_preapproval],
+        [:preapprovalKey, :mandatory, :string])
+
+      CancelPreapprovalResponse = EntityUtils.define_builder(
+        [:success, const_value: true],
+        [:voided_id, :mandatory, :string])
+
       ReturnDeposit = EntityUtils.define_builder(
         [:method, const_value: :return_deposit],
         [:payKey, :mandatory, :string],
@@ -344,6 +352,9 @@ module PaypalService
       
       def create_set_preapproval(opts); SetPreapproval.call(opts) end
       def create_set_preapproval_response(opts); SetPreapprovalResponse.call(opts) end
+
+      def create_cancel_preapproval(opts); CancelPreapproval.call(opts) end
+      def create_cancel_preapproval_response(opts); CancelPreapprovalResponse.call(opts) end
 
       def create_return_deposit(opts); ReturnDeposit.call(opts) end
       def create_return_deposit_response(opts); ReturnDepositResponse.call(opts) end

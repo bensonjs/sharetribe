@@ -270,7 +270,7 @@ module MarketplaceService
             ((transactions.current_state = 'accepted' OR transactions.current_state = 'paid')         AND participations.is_starter = TRUE) OR
 
             # Waiting feedback
-            ((transactions.current_state = 'confirmed') AND (
+            ((transactions.current_state = 'confirmed' OR transactions.current_state = 'completed') AND (
               (participations.is_starter = TRUE AND transactions.starter_skipped_feedback = FALSE AND testimonials.id IS NULL) OR
               (participations.is_starter = FALSE AND transactions.author_skipped_feedback = FALSE AND testimonials.id IS NULL)
             ))
@@ -319,7 +319,7 @@ module MarketplaceService
             )                                                 AS current_action_required,
 
             # Waiting feedback
-            ((transactions.current_state = 'confirmed') AND (
+            ((transactions.current_state = 'confirmed' OR transactions.current_state = 'completed') AND (
              (current_participation.is_starter = TRUE AND transactions.starter_skipped_feedback = FALSE AND testimonials.id IS NULL) OR
              (current_participation.is_starter = FALSE AND transactions.author_skipped_feedback = FALSE AND testimonials.id IS NULL)
             ))                                                AS waiting_feedback

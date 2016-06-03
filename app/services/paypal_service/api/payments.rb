@@ -526,6 +526,35 @@ binding.pry
 
     def void_payment(community_id, transaction_id, payment, flow, m_acc, note = nil)
       with_success(community_id, transaction_id,
+        MerchantData.create_cancel_preapproval({
+            preapprovalKey: payment[:authorization_id]
+          }),
+        error_policy: {
+          codes_to_retry: ["10001", "x-timeout", "x-servererror"],
+          try_max: 5
+        }
+        ) do |void_res|
+        with_success(community_id, transaction_id, MerchantData.create_get_transaction_details({
+              receiver_username: m_acc[:payer_id],
+              transaction_id: payment[:order_id] ? payment[:order_id] : payment[:authorization_id],
+            })) do |payment_res|
+          payment = PaymentStore.update(
+            data: payment_res,
+            community_id: community_id,
+            transaction_id: transaction_id)
+
+          payment_entity = APIDataTypes.create_payment(payment)
+
+          # Trigger payment_updated
+          @events.send(:payment_updated, flow, payment_entity)
+
+          Result::Success.new(payment_entity)
+        end
+      end
+    end
+
+    def void_payment_bak(community_id, transaction_id, payment, flow, m_acc, note = nil)
+      with_success(community_id, transaction_id,
         MerchantData.create_do_void({
             receiver_username: m_acc[:payer_id],
 

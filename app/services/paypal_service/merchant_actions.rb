@@ -568,6 +568,26 @@ module PaypalService
         }
       ),
 
+      cancel_preapproval: PaypalAction.def_action(
+        input_transformer: -> (req, config) {
+          {
+            actionType: "CancelPreapproval",
+            returnUrl: req[:success],
+            cancelUrl: req[:cancel],
+            currencyCode: req[:order_total].currency.iso_code
+          }
+        },
+        wrapper_method_name: :build_cancel_preapproval,
+        action_method_name: :cancel_preapproval,
+        output_transformer: -> (res, api) {
+          binding.pry
+          DataTypes::Merchant.create_set_preapproval_response({
+            voided_id: res.correlationId,
+            payment_status: "voided"
+          })
+        }
+      ),
+
       return_deposit: PaypalAction.def_action(
         input_transformer: -> (req, config) {
           {

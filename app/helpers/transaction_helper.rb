@@ -36,7 +36,7 @@ module TransactionHelper
       "waiting_feedback"
     else
       "completed"
-    end if status == "confirmed"
+    end if status == "completed"
 
     status_hash = {
       pending: ->() { {
@@ -146,6 +146,17 @@ module TransactionHelper
         both: {
           icon: icon_waiting_you,
           text: t("conversations.status.waiting_feedback_from_you")
+        }
+      } },
+
+      confirmed: ->() { {
+        author: {
+          icon: icon_waiting_you,
+          text: t("conversations.status.waiting_confirmation_from_you")
+        },
+        starter: {
+          icon: icon_waiting_other,
+          text: t("conversations.status.waiting_confirmation_from_requester", requester_name: other_party_name)
         }
       } },
 

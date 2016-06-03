@@ -170,8 +170,8 @@ class AcceptPreauthorizedConversationsController < ApplicationController
                                                               transaction_id: tx_id,
                                                               sender_id: sender_id)
       .maybe()
-      .map { |_| {flow: :accept, success: true}}
-      .or_else({flow: :accept, success: false})
+      .map { |_| {flow: :complete, success: true}}
+      .or_else({flow: :complete, success: false})
   end
 
   def reject_complete_tx(community_id, tx_id, sender_id)
