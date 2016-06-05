@@ -105,7 +105,7 @@ module PaypalService
           })
         }
       ),
-      
+
       setup_billing_agreement: PaypalAction.def_action(
         input_transformer: -> (req, config) {
           {
@@ -212,7 +212,7 @@ module PaypalService
           )
         }
       ),
-      
+
       get_express_checkout_details_bak: PaypalAction.def_action(
         input_transformer: -> (req, _) { { preapprovalKey: req[:token] } },
         wrapper_method_name: :build_preapproval_details,
@@ -499,7 +499,7 @@ module PaypalService
           )
         }
       ),
-      
+
       create_set_pay: PaypalAction.def_action(
         input_transformer: -> (req, config) {
           {
@@ -541,7 +541,7 @@ module PaypalService
           })
         }
       ),
-      
+
       create_set_preapproval: PaypalAction.def_action(
         input_transformer: -> (req, config) {
           {
@@ -572,17 +572,15 @@ module PaypalService
         input_transformer: -> (req, config) {
           {
             actionType: "CancelPreapproval",
-            returnUrl: req[:success],
-            cancelUrl: req[:cancel],
-            currencyCode: req[:order_total].currency.iso_code
+            preapprovalKey: req[:preapprovalKey]
           }
         },
         wrapper_method_name: :build_cancel_preapproval,
         action_method_name: :cancel_preapproval,
         output_transformer: -> (res, api) {
           binding.pry
-          DataTypes::Merchant.create_set_preapproval_response({
-            voided_id: res.correlationId,
+          DataTypes::Merchant.create_cancel_preapproval_response({
+            voided_id: res.responseEnvelope.correlationId,
             payment_status: "voided"
           })
         }

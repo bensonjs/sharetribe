@@ -237,7 +237,7 @@ module PaypalService
         [:payment_status, :mandatory, :string],
         [:pending_reason, :string],
         [:transaction_total, :money])
-        
+
       SetPay = EntityUtils.define_builder(
         [:method, const_value: :create_set_pay],
         [:preapprovalKey, :mandatory, :string],
@@ -262,7 +262,7 @@ module PaypalService
         [:payment_total, :money],
         [:fee_total, :money],
         [:payment_date, :utc_str_to_time])
-        
+
       SetPreapproval = EntityUtils.define_builder(
         [:method, const_value: :create_set_preapproval],
         [:item_name, :mandatory, :string],
@@ -295,7 +295,8 @@ module PaypalService
 
       CancelPreapprovalResponse = EntityUtils.define_builder(
         [:success, const_value: true],
-        [:voided_id, :mandatory, :string])
+        [:payment_status, :mandatory, :string],
+        [:voided_id, :optional, :string])
 
       ReturnDeposit = EntityUtils.define_builder(
         [:method, const_value: :return_deposit],
@@ -346,10 +347,10 @@ module PaypalService
 
       def create_get_transaction_details(opts); GetTransactionDetails.call(opts) end
       def create_get_transaction_details_response(opts); GetTransactionDetailsResponse.call(opts) end
-      
+
       def create_set_pay(opts); SetPay.call(opts) end
       def create_set_pay_response(opts); SetPayResponse.call(opts) end
-      
+
       def create_set_preapproval(opts); SetPreapproval.call(opts) end
       def create_set_preapproval_response(opts); SetPreapprovalResponse.call(opts) end
 
