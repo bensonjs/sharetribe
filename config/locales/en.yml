@@ -615,6 +615,13 @@ en:
     confirm:
       confirm_description: "If your order has been fulfilled you should confirm it as done. Then you can give feedback to the other party."
       cancel_description: "If your order was not fulfilled, you can mark it as 'disputed'. You can still give feedback to the other party and describe what happened."
+      dispute_description: |-
+        If your order was not fulfilled. For example: <br/> &nbsp;. You haven't received your item<br/>  &nbsp;. You received your item, but it is significantly not as described.<br/> <br/>
+        You can use Paypal <a href='%{paypal_help_url}' target='_blank'>Paypal help</a> and <a href='%{paypal_resolution_center_url}' target='_blank'>Resolution Centre</a> to resolve a dispute with the item owner.<br/>
+        PayPal and Sharehub strongly recommend that you attempt to resolve issues directly with the item owner whenever possible.<br/><br/>
+        After you resolve the dispute, please Continue to close the dispute so that the owner can inform Sharehub to return your deposit. <br/><br/>
+        You can still give feedback to the other party and describe what happened.
+      owner_dispute_description: "If your order was not fulfilled, you can mark it as 'disputed'. You can still give feedback to the other party and describe what happened."
       cancel_payed_description: "If your request was accepted but you're having second thoughts, you can still cancel the request before the payment."
       canceling_payed_transaction: "Cancel transaction"
       confirm: "Mark completed"

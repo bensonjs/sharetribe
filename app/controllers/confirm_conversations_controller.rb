@@ -47,6 +47,8 @@ class ConfirmConversationsController < ApplicationController
       can_be_confirmed: can_be_confirmed,
       other_person: other_person,
       status: @listing_transaction.status,
+      paypal_help_url: "https://www.paypal.com/selfhelp/article/FAQ957",
+      paypal_resolution_center_url: "https://www.paypal.com/cgi-bin/webscr?cmd=_complaint-view&nav=0.5",
       form: @listing_transaction # TODO fix me, don't pass objects
     })
   end

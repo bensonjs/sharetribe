@@ -26,7 +26,7 @@
   = form_for form, :url => confirmation_person_message_path(:person_id => @current_user.id, :id => listing_transaction[:id]), :html => { :method => "put" } do |form|
     - if can_be_confirmed
 
-      %input.js-confirmation-status{type: :hidden, name: "transaction[status]", value: action_type == "confirm" ? "confirmed" : "canceled"}
+      %input.js-confirmation-status{type: :hidden, name: "transaction[status]", value: action_type == "confirm" ? "confirmed" : "confirmed"}
 
       %a#confirm-action-link.radio-button-positive.js-confirm-radio-button{ data: { :"radio-button-value" => "confirmed" }, class: action_type == "confirm" ? "radio-button-selected" : "" }
         .radio-button-icon{class: icon_for("confirmed")}
@@ -39,7 +39,7 @@
         %div{:class => "confirm-description #{action_type.eql?('confirm') ? '' : 'hidden'}"}
           = t("conversations.confirm.confirm_description")
         %div{:class => "cancel-description #{action_type.eql?('cancel') ? '' : 'hidden'}"}
-          = t("conversations.confirm.cancel_description")
+          = t("conversations.confirm.dispute_description", paypal_resolution_center_url: paypal_resolution_center_url, paypal_help_url: paypal_help_url).html_safe
 
     - else
 
