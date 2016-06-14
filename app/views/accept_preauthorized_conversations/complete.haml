@@ -26,20 +26,20 @@
   = form_for form, :url => form_action, :html => { :method => "put" } do |form|
     - if can_be_confirmed
 
-      %input.js-confirmation-status{type: :hidden, name: "listing_conversation[status]", value: action_type == "complete" ? "completed" : "canceled"}
+      %input.js-confirmation-status{type: :hidden, name: "listing_conversation[status]", value: action_type == "complete" ? "completed" : "completed"}
 
-      %a#confirm-action-link.radio-button-positive.js-confirm-radio-button{ data: { :"radio-button-value" => "confirmed" }, class: action_type == "complete" ? "radio-button-selected" : "" }
+      %a#confirm-action-link.radio-button-positive.js-confirm-radio-button{ data: { :"radio-button-value" => "completed" }, class: action_type == "complete" ? "radio-button-selected" : "" }
         .radio-button-icon{class: icon_for("confirmed")}
         .radio-button-label= t("conversations.confirm.confirm")
-      %a#cancel-action-link.radio-button-negative.js-cancel-radio-button{ data: { :"radio-button-value" => "canceled" }, class: action_type == "cancel" ? "radio-button-selected" : "" }
+      %a#cancel-action-link.radio-button-negative.js-cancel-radio-button{ data: { :"radio-button-value" => "completed" }, class: action_type == "dispute" ? "radio-button-selected" : "" }
         .radio-button-icon{class: icon_for("canceled")}
         .radio-button-label= t("conversations.confirm.cancel")
 
       .conversation-action-description
         %div{:class => "confirm-description #{action_type.eql?('complete') ? '' : 'hidden'}"}
           = t("conversations.confirm.confirm_description")
-        %div{:class => "cancel-description #{action_type.eql?('cancel') ? '' : 'hidden'}"}
-          = t("conversations.confirm.owner_dispute_description")
+        %div{:class => "cancel-description #{action_type.eql?('dispute') ? '' : 'hidden'}"}
+          = t("conversations.confirm.owner_dispute_description").html_safe
 
     - else
 
@@ -65,4 +65,7 @@
           = radio_button_tag "give_feedback", false, false, :id => "do_not_give_feedback"
           = label_tag "do_not_give_feedback", t("conversations.confirm.do_not_give_feedback"), :class => "radio"
 
-    = form.button t("conversations.confirm.continue"), :class => "send_button", :id => "send_testimonial_button"
+    %div{:class => "confirm-description #{action_type.eql?('confirm') ? '' : 'hidden'}"}
+      = form.button t("conversations.confirm.continue"), :class => "send_button", :id => "send_testimonial_button"
+    %div{:class => "cancel-description #{action_type.eql?('dispute') ? '' : 'hidden'}"}
+      = form.button t("conversations.confirm.resolve"), :class => "send_button", :id => "send_testimonial_button"

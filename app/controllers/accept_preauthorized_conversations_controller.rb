@@ -99,6 +99,27 @@ class AcceptPreauthorizedConversationsController < ApplicationController
     })
   end
 
+  def dispute
+    binding.pry
+    conversation =      MarketplaceService::Conversation::Query.conversation_for_person(@listing_conversation.conversation.id, @current_user.id, @current_community.id)
+    can_be_confirmed =  MarketplaceService::Transaction::Query.can_transition_to?(@listing_conversation, :completed)
+    other_person =      query_person_entity(@listing_conversation.other_party(@current_user).id)
+
+    render("complete", locals: {
+      action_type: "dispute",
+      message_form: MessageForm.new,
+      listing_transaction: @listing_conversation,
+      can_be_confirmed: can_be_confirmed,
+      other_person: other_person,
+      status: "paid",
+      form: @listing_conversation, # TODO fix me, don't pass objects
+      form_action: completion_preauthorized_person_message_path(
+        person_id: @current_user.id,
+        id: @listing_conversation.id
+      )
+    })
+  end
+
   def completed_or_rejected
     binding.pry
     tx_id = params[:id]

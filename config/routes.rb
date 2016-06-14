@@ -329,6 +329,7 @@ Kassi::Application.routes.draw do
             get :reject_preauthorized, to: 'accept_preauthorized_conversations#reject'
             put :acceptance_preauthorized, to: 'accept_preauthorized_conversations#accepted_or_rejected'
             get :complete_preauthorized, to: 'accept_preauthorized_conversations#complete'
+            get :dispute_preauthorized, to: 'accept_preauthorized_conversations#dispute'
             put :completion_preauthorized, to: 'accept_preauthorized_conversations#completed_or_rejected'
           end
           resources :messages

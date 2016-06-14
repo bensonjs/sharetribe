@@ -468,6 +468,7 @@ window.ST = window.ST || {};
         "listing[title]": {required: true, minlength: 2, maxlength: 60},
         "listing[origin]": {address_validator: true},
         "listing[price]": {required: pr, money: true, minimum_price_required: [minimum_price, subunit_to_unit]},
+        "listing[deposit]": {money: true},
         "listing[shipping_price]": {money: true},
         "listing[shipping_price_additional]": {money: true},
         "listing[valid_until(1i)]": { min_date: true, max_date: true }

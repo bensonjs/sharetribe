@@ -65,4 +65,7 @@
           = radio_button_tag "give_feedback", false, false, :id => "do_not_give_feedback"
           = label_tag "do_not_give_feedback", t("conversations.confirm.do_not_give_feedback"), :class => "radio"
 
-    = form.button t("conversations.confirm.continue"), :class => "send_button", :id => "send_testimonial_button"
+    %div{:class => "confirm-description #{action_type.eql?('confirm') ? '' : 'hidden'}"}
+      = form.button t("conversations.confirm.continue"), :class => "send_button", :id => "send_testimonial_button"
+    %div{:class => "cancel-description #{action_type.eql?('cancel') ? '' : 'hidden'}"}
+      = form.button t("conversations.confirm.resolve"), :class => "send_button", :id => "send_testimonial_button"
