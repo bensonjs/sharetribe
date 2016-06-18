@@ -321,7 +321,7 @@ binding.pry
           proc_token = Worker.enqueue_payments_op(
             community_id: community_id,
             transaction_id: transaction_id,
-            op_name: :do_full_capture,
+            op_name: :do_return_deposit,
             op_input: [community_id, transaction_id, info, payment, m_acc])
 
           proc_status_response(proc_token)
