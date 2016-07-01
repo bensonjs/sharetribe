@@ -79,7 +79,6 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   end
 
   def complete
-    binding.pry
     conversation =      MarketplaceService::Conversation::Query.conversation_for_person(@listing_conversation.conversation.id, @current_user.id, @current_community.id)
     can_be_confirmed =  MarketplaceService::Transaction::Query.can_transition_to?(@listing_conversation, :completed)
     other_person =      query_person_entity(@listing_conversation.other_party(@current_user).id)
@@ -100,7 +99,6 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   end
 
   def dispute
-    binding.pry
     conversation =      MarketplaceService::Conversation::Query.conversation_for_person(@listing_conversation.conversation.id, @current_user.id, @current_community.id)
     can_be_confirmed =  MarketplaceService::Transaction::Query.can_transition_to?(@listing_conversation, :completed)
     other_person =      query_person_entity(@listing_conversation.other_party(@current_user).id)
@@ -121,7 +119,6 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   end
 
   def completed_or_rejected
-    binding.pry
     tx_id = params[:id]
     status = params[:listing_conversation][:status].to_sym
     sender_id = @current_user.id
@@ -186,7 +183,6 @@ class AcceptPreauthorizedConversationsController < ApplicationController
   end
 
   def complete_confirmation_tx(community_id, tx_id, sender_id)
-    binding.pry
     TransactionService::Transaction.complete_confirmation(community_id: community_id,
                                                               transaction_id: tx_id,
                                                               sender_id: sender_id)
@@ -237,7 +233,7 @@ class AcceptPreauthorizedConversationsController < ApplicationController
     result = TransactionService::Transaction.get(community_id: @current_community.id, transaction_id: @listing_conversation.id)
     transaction = result[:data]
     community_country_code = LocalizationUtils.valid_country_code(@current_community.country)
-binding.pry
+
     render "accept", locals: {
       payment_gateway: :paypal,
       listing: @listing,

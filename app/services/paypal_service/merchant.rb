@@ -26,7 +26,7 @@ module PaypalService
 
     def do_request(request)
       action_def = @action_handlers[request[:method]]
-      binding.pry
+
       return exec_action(action_def, @api_builder.call(request), @config, request) if action_def
 
       raise ArgumentError.new("Unknown request method #{request[:method]}")
@@ -54,13 +54,11 @@ module PaypalService
       wrapper_method = api.method(action_def[:wrapper_method_name])
       action_method = api.method(action_def[:action_method_name])
       output_transformer = action_def[:output_transformer]
-binding.pry
       input = input_transformer.call(request, config)
       request_id = @logger.log_request_input(request, input)
       wrapped = wrapper_method.call(input)
 
       begin
-        binding.pry
         response = action_method.call(wrapped)
 
         @logger.log_response(response, request_id)

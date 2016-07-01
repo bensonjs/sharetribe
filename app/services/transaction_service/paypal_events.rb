@@ -13,7 +13,6 @@ module TransactionService::PaypalEvents
 
   def payment_updated(flow, payment)
     tx = MarketplaceService::Transaction::Query.transaction(payment[:transaction_id])
-    binding.pry
     if tx
       case transition_type(tx, payment)
       when :initiated_to_preauthorized

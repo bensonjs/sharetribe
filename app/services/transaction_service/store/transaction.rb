@@ -76,7 +76,6 @@ module TransactionService::Store::Transaction
   module_function
 
   def create(opts)
-    binding.pry
     tx_data = HashUtils.compact(NewTransaction.call(opts))
     tx_model = TransactionModel.new(tx_data.except(:content, :booking_fields))
     build_conversation(tx_model, tx_data)

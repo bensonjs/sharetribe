@@ -77,7 +77,6 @@ class TransactionProcessStateMachine
   end
 
   after_transition(to: :completed) do |conversation|
-    binding.pry
     confirmation = ConfirmConversation.new(conversation, conversation.starter, conversation.community)
     confirmation.complete!
   end

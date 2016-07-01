@@ -218,7 +218,6 @@ module PaypalService
         wrapper_method_name: :build_preapproval_details,
         action_method_name: :preapproval_details,
         output_transformer: -> (res, api) {
-          binding.pry
           DataTypes::Merchant.create_get_express_checkout_details_response(
             {
               token: "testToken",
@@ -312,7 +311,6 @@ module PaypalService
         wrapper_method_name: :build_set_express_checkout,
         action_method_name: :set_express_checkout,
         output_transformer: -> (res, api) {
-          binding.pry
           DataTypes::Merchant.create_set_express_checkout_order_response({
             token: res.token,
             redirect_url: append_useraction_commit(express_checkout_url(api, res.token)),
@@ -408,7 +406,6 @@ module PaypalService
 
       do_capture: PaypalAction.def_action(
         input_transformer: -> (req, _) {
-          binding.pry
           {
             AuthorizationID: req[:authorization_id],
             Amount: from_money(req[:payment_total]),
@@ -525,7 +522,6 @@ module PaypalService
         wrapper_method_name: :build_pay,
         action_method_name: :pay,
         output_transformer: -> (res, api) {
-          binding.pry
           DataTypes::Merchant.create_set_pay_response({
             authorization_id: res.payKey,
             payment_id: res.paymentInfoList.paymentInfo[0].senderTransactionId,
@@ -558,7 +554,6 @@ module PaypalService
         wrapper_method_name: :build_preapproval,
         action_method_name: :preapproval,
         output_transformer: -> (res, api) {
-          binding.pry
           DataTypes::Merchant.create_set_preapproval_response({
             token: res.preapprovalKey,
             # redirect_url: append_useraction_commit("https://www.sandbox.paypal.com/webscr?cmd=_ap-preapproval&preapprovalkey=#{res.preapprovalKey}"),
@@ -578,7 +573,6 @@ module PaypalService
         wrapper_method_name: :build_cancel_preapproval,
         action_method_name: :cancel_preapproval,
         output_transformer: -> (res, api) {
-          binding.pry
           DataTypes::Merchant.create_cancel_preapproval_response({
             voided_id: res.responseEnvelope.correlationId,
             payment_status: "voided"
@@ -606,7 +600,6 @@ module PaypalService
         wrapper_method_name: :build_refund,
         action_method_name: :refund,
         output_transformer: -> (res, api) {
-          binding.pry
           DataTypes::Merchant.create_return_deposit_response({
             return_deposit_id: res.refundInfoList.refundInfo[0].encryptedRefundTransactionId,
             deposit_total: Money.new(res.refundInfoList.refundInfo[0].receiver.amount * 100, res.currencyCode),

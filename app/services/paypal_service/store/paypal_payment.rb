@@ -92,7 +92,6 @@ module PaypalService::Store::PaypalPayment
 
   def create(community_id, transaction_id, order)
     begin
-      binding.pry
       model = PaypalPaymentModel.create!(
         initial(
           order
@@ -146,7 +145,6 @@ module PaypalService::Store::PaypalPayment
   end
 
   def initial(order)
-    binding.pry
     order_total = order[:order_total]
     authorization_total = order[:authorization_total]
     total =
@@ -215,7 +213,7 @@ module PaypalService::Store::PaypalPayment
     if payment.nil?
       raise ArgumentError.new("No matching payment to update.")
     end
-binding.pry
+
     payment.update_attributes!(payment_update)
 
     from_model(payment.reload)

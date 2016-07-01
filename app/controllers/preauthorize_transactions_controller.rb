@@ -204,7 +204,6 @@ class PreauthorizeTransactionsController < ApplicationController
   end
 
   def booked
-    binding.pry
     payment_type = MarketplaceService::Community::Query.payment_type(@current_community.id)
     conversation_params = params[:listing_conversation]
 
@@ -234,7 +233,7 @@ class PreauthorizeTransactionsController < ApplicationController
         preauthorize_form.errors.full_messages.join(", "),
        { action: :book, start_on: TransactionViewUtils.stringify_booking_date(start_on), end_on: TransactionViewUtils.stringify_booking_date(end_on) })
     end
-binding.pry
+
     transaction_response = create_preauth_transaction(
       payment_type: payment_type,
       community: @current_community,
@@ -508,7 +507,7 @@ binding.pry
       else
         BraintreeForm.new(opts[:bt_payment_params]).to_hash
       end
-binding.pry
+
     transaction = {
           community_id: opts[:community].id,
           listing_id: opts[:listing].id,

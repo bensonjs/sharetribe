@@ -54,7 +54,6 @@ module PaypalService::API
     end
 
     def do_request(community_id, create_payment, m_acc)
-      binding.pry
       create_payment_data = create_payment.merge(
         { receiver_username: m_acc[:payer_id],
           invnum: Invnum.create(community_id, create_payment[:transaction_id], :payment)})
@@ -123,7 +122,6 @@ module PaypalService::API
 
     ## POST /payments/:community_id/create?token=EC-7XU83376C70426719
     def create(community_id, token, async: false)
-      binding.pry
       @lookup.with_token(community_id, token) do |token|
         if (async)
           proc_token = Worker.enqueue_payments_op(
@@ -140,7 +138,6 @@ module PaypalService::API
     end
 
     def do_create(community_id, token)
-      binding.pry
       existing_payment = @lookup.get_payment_by_token(token)
 
       response =
@@ -155,7 +152,7 @@ module PaypalService::API
         # Delete the token, we have now completed the payment request
         TokenStore.delete(community_id, response[:data][:transaction_id])
       end
-binding.pry
+
       response
     end
 
@@ -189,7 +186,6 @@ binding.pry
     end
 
     def do_full_capture(community_id, transaction_id, info, payment, m_acc)
-    binding.pry
         admin_acc = AccountStore.get_active(community_id: community_id)
         tx = TxStore.get(transaction_id)
         total_price = tx[:unit_price] * tx[:listing_quantity]
@@ -214,14 +210,13 @@ binding.pry
         }
         ) do |payment_res|
 
-binding.pry
         # Save payment data to payment
         payment = PaymentStore.update(
           data: payment_res,
           community_id: community_id,
           transaction_id: transaction_id
          )
-binding.pry
+
         payment_entity = DataTypes.create_payment(payment)
 
         # Trigger payment_updated event
@@ -233,7 +228,6 @@ binding.pry
     end
 
     def do_full_capture_bak(community_id, transaction_id, info, payment, m_acc)
-      binding.pry
       with_success(community_id, transaction_id,
         MerchantData.create_do_full_capture({
             receiver_username: m_acc[:payer_id],
@@ -332,7 +326,6 @@ binding.pry
     end
 
     def do_return_deposit(community_id, transaction_id, info, payment, m_acc)
-    binding.pry
         admin_acc = AccountStore.get_active(community_id: community_id)
         tx = TxStore.get(transaction_id)
         total_price = tx[:unit_price] * tx[:listing_quantity]
@@ -353,14 +346,13 @@ binding.pry
         }
         ) do |payment_res|
 
-binding.pry
         # Save payment data to payment
         payment = PaymentStore.update(
           data: payment_res,
           community_id: community_id,
           transaction_id: transaction_id
          )
-binding.pry
+
         payment_entity = DataTypes.create_payment(payment)
 
         # Trigger payment_updated event
@@ -389,7 +381,6 @@ binding.pry
     def create_payment(token)
       @lookup.with_merchant_account(token[:community_id], token) do |m_acc|
         # Save payment
-        binding.pry
           payment = PaymentStore.create(
             token[:community_id],
             token[:transaction_id],
@@ -425,12 +416,10 @@ binding.pry
             return Result::Error.new("Payment has not been accepted by the buyer.")
           end
 
-binding.pry
           order_details = create_order_details(ec_details)
                           .merge({community_id: token[:community_id], transaction_id: token[:transaction_id]})
-                          binding.pry
           @events.send(:order_details, :success, order_details)
-binding.pry
+
           with_success(token[:community_id], token[:transaction_id],
             MerchantData.create_do_express_checkout_payment({
               payment_action: token[:payment_action],
@@ -458,7 +447,6 @@ binding.pry
               finally: (method :handle_failed_create_payment).call(token)
             }
           ) do |payment_res|
-binding.pry
             # Save payment
             payment = PaymentStore.create(
               token[:community_id],
