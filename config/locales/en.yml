@@ -611,7 +611,7 @@ en:
       total_label: "Total:"
       total_value: "%{seller_gets}*"
       paypal_fee_info: "* Excludes <a id='%{fee_info_link_id}' href='#'>PayPal's payment processing fee</a>"
-      deposit_info: "* The deposit (%{deposit_info_id}) will be held by Sharebags."
+      deposit_info: "* The deposit (%{deposit_info_id}) will be held by Styleshire."
       shipping_price_label: "Shipping:"
     confirm:
       confirm_description: "If your order has been fulfilled you should confirm it as done. Then you can give feedback to the other party."
@@ -619,13 +619,13 @@ en:
       dispute_description: |-
         If your order was not fulfilled, For example: <br/> &nbsp;. You haven't received your item<br/>  &nbsp;. You received your item, but it is significantly not as described.<br/> <br/>
         You can use Paypal <a href='%{paypal_help_url}' target='_blank'>Paypal help</a> and <a href='%{paypal_resolution_center_url}' target='_blank'>Resolution Centre</a> to resolve a dispute with the item owner.<br/>
-        PayPal and Sharebags strongly recommend that you attempt to resolve issues directly with the item owner whenever possible.<br/><br/>
-        Once the dispute has been resolved, please use the Resolve button below to close the dispute so that the owner can inform Sharebags to return your deposit. <br/><br/>
+        PayPal and Styleshire strongly recommend that you attempt to resolve issues directly with the item owner whenever possible.<br/><br/>
+        Once the dispute has been resolved, please use the Resolve button below to close the dispute so that the owner can inform Styleshire to return your deposit. <br/><br/>
         You can still give feedback to the other party and describe what happened.
       owner_dispute_description: |-
         If your order was not fulfilled, For example: <br/> &nbsp;. Your item has not been returned <br/> &nbsp;. Your item has been returned, but it has been damaged.<br/> <br/>
         Please try to resolve issues directly with the other party whenever possible.<br/><br/>
-        If it can not be resolved, your can seek help from Sharebags via sending emials to help@Sharebags.com. Please include your user name, the other party's user name and the transaction/message id, which can be found from the link of the current page. <br/><br/>
+        If it can not be resolved, your can seek help from Styleshire via sending emials to help@Styleshire.com. Please include your user name, the other party's user name and the transaction/message id, which can be found from the link of the current page. <br/><br/>
         Once the dispute has been resolved, please come back to this page and use the Resolve button below to close the dispute.<br/><br/>
         You can still give feedback to the other party and describe what happened.
       cancel_payed_description: "If your request was accepted but you're having second thoughts, you can still cancel the request before the payment."
