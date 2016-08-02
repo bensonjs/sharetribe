@@ -35,7 +35,7 @@
       %span.initiate-transaction-sum-value
         = humanized_money_with_symbol(subtotal)
 
-  - if deposit.present?
+  - if APP_CONFIG.handle_deposit && deposit.present?
     .initiate-transaction-sum-wrapper
       %span.initiate-transaction-sum-label
         = "Deposit:"

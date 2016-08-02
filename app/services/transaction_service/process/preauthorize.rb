@@ -47,17 +47,22 @@ module TransactionService::Process
     end
 
     def complete_confirmation(tx:, message:, sender_id:, gateway_adapter:)
-      res = Gateway.unwrap_completion(
-        gateway_adapter.complete_confirmation(tx: tx)) do
+      if APP_CONFIG.handle_deposit && tx[:deposit] > 0
+        res = Gateway.unwrap_completion(
+          gateway_adapter.complete_confirmation(tx: tx)) do
 
+          Transition.transition_to(tx[:id], :completed)
+        end
+
+        if res[:success] && message.present?
+          send_message(tx, message, sender_id)
+        end
+
+        res
+      else
         Transition.transition_to(tx[:id], :completed)
+        Result::Success.new({result: true})
       end
-
-      if res[:success] && message.present?
-        send_message(tx, message, sender_id)
-      end
-
-      res
     end
 
     def complete(tx:, message:, sender_id:, gateway_adapter:)
