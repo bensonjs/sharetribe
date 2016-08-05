@@ -92,6 +92,19 @@ module PaypalService::API
           }
         )
 
+        # Mock billing agreement, remove if reference transaction is enabled
+        PaypalAccountStore.update_active(
+          community_id: community_id,
+          person_id: person_id,
+          opts:
+            {
+              community_id: community_id,
+              person_id: person_id,
+              billing_agreement_paypal_username_to: 'XXX',
+              billing_agreement_request_token: 'EC-XXX',
+              billing_agreement_billing_agreement_id: 'B-XXX'
+            })
+
         Result::Success.new(account)
       else
         with_success_permissions(
@@ -126,6 +139,19 @@ module PaypalService::API
                 active: true
               }
             )
+
+            # Mock billing agreement, remove if reference transaction is enabled
+            PaypalAccountStore.update_active(
+              community_id: community_id,
+              person_id: person_id,
+              opts:
+                {
+                  community_id: community_id,
+                  person_id: person_id,
+                  billing_agreement_paypal_username_to: 'XXX',
+                  billing_agreement_request_token: 'EC-XXX',
+                  billing_agreement_billing_agreement_id: 'B-XXX'
+                })
 
             Result::Success.new(account)
           }
