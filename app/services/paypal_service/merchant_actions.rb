@@ -548,6 +548,7 @@ module PaypalService
             maxAmountPerPayment: MoneyUtil.to_dot_separated_str(req[:order_total]),
             maxNumberOfPayments: 1,
             maxNumberOfPaymentsPerPeriod: 1,
+            maxTotalAmountOfAllPayments: MoneyUtil.to_dot_separated_str(req[:order_total]),
             startingDate: DateTime.now,
             endingDate: DateTime.now + 7
           }
