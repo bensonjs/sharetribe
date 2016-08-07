@@ -105,9 +105,12 @@
       - content_for :extra_javascript do
         :javascript
           $('#paypal_fee_info_link').click(function() { $('#paypal_fee_info_content').lightbox_me({centered: true, zIndex: 1000000}); });
-       
+
       %p
-        = t("conversations.accept.deposit_info", deposit_info_id: humanized_money_with_symbol(deposit)).html_safe
+        - if APP_CONFIG.handle_deposit
+          = t("conversations.accept.deposit_info", deposit_info_id: humanized_money_with_symbol(deposit)).html_safe
+        - else
+          = t("conversations.accept.ask_deposit").html_safe
 
 
   = render partial: "transactions/shipping_address", locals: { shipping_address: shipping_address }

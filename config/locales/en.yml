@@ -612,6 +612,7 @@ en:
       total_value: "%{seller_gets}*"
       paypal_fee_info: "* Excludes <a id='%{fee_info_link_id}' href='#'>PayPal's payment processing fee</a>"
       deposit_info: "* The deposit (%{deposit_info_id}) will be held by Styleshire."
+      ask_deposit: "* If deposit is required for the item, please contact the renter to agree on the deposit before accepting this request."
       shipping_price_label: "Shipping:"
     confirm:
       confirm_description: "If your order has been fulfilled you should confirm it as done. Then you can give feedback to the other party."
